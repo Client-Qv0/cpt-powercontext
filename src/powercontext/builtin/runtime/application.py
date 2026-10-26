@@ -2964,7 +2964,7 @@ def _log_scheduled_processing(
     held_count: int | None = None,
     hold_codes: tuple[str, ...] = (),
 ) -> None:
-    extra = {
+    extra: dict[str, object] = {
         "event": "background.operation.completed",
         "operation": operation,
         "outcome": outcome,
@@ -3131,6 +3131,9 @@ class BuiltinRuntime:
         self.memory = MemoryApplication(self)
         self.topic_memory = TopicMemoryApplication(self)
         self.records = RecordApplication(self)
+        from powercontext.builtin.runtime.source_lifecycle import SourceLifecycleApplication
+
+        self.lifecycle = SourceLifecycleApplication(self)
         self.prompts = PromptApplication(self)
         self.review = ReviewApplication(self)
         self.skill = SkillApplication(self)

@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 from collections import OrderedDict
 
 from powercontext.builtin.inference.models import EmbeddingResult, InferenceUsage
@@ -26,6 +27,7 @@ DEFAULT_MAX_BATCH_SIZE = 64
 DEFAULT_COALESCE_MS = 5.0
 DEFAULT_CACHE_SIZE = 1024
 _NONE_USAGE = InferenceUsage(requests=0)
+_Completion = tuple[tuple[float, ...], int | None, InferenceUsage]
 
 
 class CoalescingEmbeddingModel:
@@ -42,7 +44,7 @@ class CoalescingEmbeddingModel:
     ) -> None:
         if not _is_positive_int(max_batch_size):
             raise ValueError("max_batch_size must be a positive integer")  # noqa: TRY003
-        if not _is_number(coalesce_ms) or coalesce_ms < 0:
+        if not _is_number(coalesce_ms) or not math.isfinite(coalesce_ms) or coalesce_ms < 0:
             raise ValueError("coalesce_ms must be a non-negative number")  # noqa: TRY003
         if not isinstance(cache_size, int) or isinstance(cache_size, bool) or cache_size < 0:
             raise ValueError("cache_size must be a non-negative integer")  # noqa: TRY003
@@ -52,10 +54,8 @@ class CoalescingEmbeddingModel:
         self._coalesce_seconds = float(coalesce_ms) / 1000
         self._cache_size = cache_size
         self._cache: OrderedDict[str, tuple[float, ...]] = OrderedDict()
-        self._waiting: dict[str, asyncio.Future[tuple[float, ...]]] = {}
-        self._batch_of: dict[str, int] = {}
+        self._waiting: dict[str, asyncio.Future[_Completion]] = {}
         self._batches = 0
-        self._usage: dict[int, InferenceUsage] = {}
         self._flush_task: asyncio.Task[None] | None = None
 
     async def embed(self, texts: tuple[str, ...], /) -> EmbeddingResult:
@@ -66,25 +66,26 @@ class CoalescingEmbeddingModel:
         claims = {text: self._claim(text) for text in unique}
         if any(text in self._waiting for text in unique):
             self._schedule_flush()
-        vectors = {text: await asyncio.shield(claims[text][0]) for text in unique}
-        served = tuple(text for text in unique if not claims[text][1])
+        completed = await asyncio.gather(*(asyncio.shield(claims[text]) for text in unique))
+        vectors = {text: result[0] for text, result in zip(unique, completed, strict=True)}
+        usages = {batch: usage for _, batch, usage in completed if batch is not None}
         return EmbeddingResult(
             vectors=tuple(vectors[text] for text in texts),
-            usage=self._usage_for(served),
+            usage=self._usage_for(list(usages.values())),
         )
 
-    def _claim(self, text: str) -> tuple[asyncio.Future[tuple[float, ...]], bool]:
+    def _claim(self, text: str) -> asyncio.Future[_Completion]:
         cached = self._cache_get(text)
         if cached is not None:
-            resolved: asyncio.Future[tuple[float, ...]] = asyncio.get_running_loop().create_future()
-            resolved.set_result(cached)
-            return resolved, True
+            resolved: asyncio.Future[_Completion] = asyncio.get_running_loop().create_future()
+            resolved.set_result((cached, None, _NONE_USAGE))
+            return resolved
         waiting = self._waiting.get(text)
         if waiting is not None:
-            return waiting, False
-        pending: asyncio.Future[tuple[float, ...]] = asyncio.get_running_loop().create_future()
+            return waiting
+        pending: asyncio.Future[_Completion] = asyncio.get_running_loop().create_future()
         self._waiting[text] = pending
-        return pending, False
+        return pending
 
     def _schedule_flush(self) -> None:
         if self._flush_task is None or self._flush_task.done():
@@ -98,8 +99,6 @@ class CoalescingEmbeddingModel:
                 texts = tuple(self._waiting)[: self._max_batch_size]
                 batch = self._batches
                 self._batches += 1
-                for text in texts:
-                    self._batch_of[text] = batch
                 await self._run_batch(texts, batch)
         finally:
             self._flush_task = None
@@ -112,7 +111,9 @@ class CoalescingEmbeddingModel:
             result = await self._embed_batch(texts)
         except BaseException as error:
             self._abandon(texts, waiters, error)
-            raise
+            if isinstance(error, asyncio.CancelledError):
+                raise
+            return
         self._settle(texts, waiters, batch, result)
 
     async def _embed_batch(self, texts: tuple[str, ...]) -> EmbeddingResult:
@@ -124,7 +125,7 @@ class CoalescingEmbeddingModel:
     def _abandon(
         self,
         texts: tuple[str, ...],
-        waiters: tuple[asyncio.Future[tuple[float, ...]], ...],
+        waiters: tuple[asyncio.Future[_Completion], ...],
         error: BaseException,
     ) -> None:
         for text in texts:
@@ -140,26 +141,21 @@ class CoalescingEmbeddingModel:
     def _settle(
         self,
         texts: tuple[str, ...],
-        waiters: tuple[asyncio.Future[tuple[float, ...]], ...],
+        waiters: tuple[asyncio.Future[_Completion], ...],
         batch: int,
         result: EmbeddingResult,
     ) -> None:
-        self._usage[batch] = result.usage
         for text, vector, waiter in zip(texts, result.vectors, waiters, strict=True):
             self._waiting.pop(text, None)
             self._cache_put(text, vector)
             if not waiter.done():
-                waiter.set_result(vector)
+                waiter.set_result((vector, batch, result.usage))
 
-    def _usage_for(self, texts: tuple[str, ...]) -> InferenceUsage:
-        batches = {self._batch_of[text] for text in texts if text in self._batch_of}
-        if not batches:
-            return _NONE_USAGE
-        usages = [self._usage[batch] for batch in batches if batch in self._usage]
+    def _usage_for(self, usages: list[InferenceUsage]) -> InferenceUsage:
         if not usages:
-            return InferenceUsage(requests=len(batches))
+            return _NONE_USAGE
         return InferenceUsage(
-            requests=len(batches),
+            requests=sum(usage.requests for usage in usages),
             input_tokens=_sum_reported(usages, "input_tokens"),
             output_tokens=_sum_reported(usages, "output_tokens"),
         )

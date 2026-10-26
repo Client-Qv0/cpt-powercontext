@@ -19,7 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 from urllib.parse import quote
 
 from pydantic import BaseModel, Field, JsonValue
@@ -333,12 +333,15 @@ def _message_body(role: str, message: dict[str, Any], /) -> str | None:
 
 
 def _text_blocks(content: object, /) -> str | None:
+    if isinstance(content, str):
+        return content
     if not isinstance(content, list):
         return None
     parts: list[str] = []
-    for block in content:
-        if not isinstance(block, dict):
+    for raw_block in content:
+        if not isinstance(raw_block, dict):
             continue
+        block = cast(dict[str, Any], raw_block)
         block_type = block.get("type")
         if block_type == "text":
             text = block.get("text")

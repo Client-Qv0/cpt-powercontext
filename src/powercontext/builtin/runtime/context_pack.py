@@ -135,6 +135,8 @@ class ContextPackDelta:
 def apply_context_pack_delta(base: ContextPack, delta: ContextPackDelta, /) -> ContextPack:
     """Rebuild the target pack, rejecting any delta that does not reproduce it."""
 
+    if not _is_int(delta.prefix_items) or delta.prefix_items < 0:
+        _fail("context pack delta prefix_items must be a non-negative integer")
     if delta.base_digest != base.digest:
         _fail("context pack delta was built for a different base pack")
     if delta.prefix_items > len(base.items):
