@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RelayDesk 接力台 - 团队交接上下文管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #f8fafc;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+
+        header h1 { font-size: 48px; font-weight: 700; margin-bottom: 16px; }
+        header .subtitle { font-size: 24px; opacity: 0.9; margin-bottom: 24px; }
+        header .description { font-size: 18px; max-width: 700px; margin: 0 auto; opacity: 0.85; }
+
+        section { padding: 60px 0; }
+        section h2 { font-size: 36px; font-weight: 600; margin-bottom: 32px; text-align: center; color: #1e3a5f; }
+        section h3 { font-size: 24px; font-weight: 600; margin-bottom: 16px; color: #2c5282; }
+
+        .pain-points { background: white; }
+
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .pain-card {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 24px;
+            border-radius: 8px;
+        }
+
+        .pain-card h4 { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #92400e; }
+        .pain-card p { color: #78350f; }
+
+        .features { background: #f8fafc; }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12); }
+        .feature-icon { font-size: 48px; margin-bottom: 16px; }
+        .feature-card h4 { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: #1e3a5f; }
+        .feature-card p { color: #64748b; }
+
+        .powercontext { background: white; }
+        .powercontext-content { max-width: 800px; margin: 0 auto; }
+        .powercontext-content p { font-size: 18px; margin-bottom: 20px; color: #475569; }
+
+        .tech-list { list-style: none; margin-top: 32px; }
+        .tech-list li {
+            padding: 16px 20px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .tech-list li::before { content: "\2713"; color: #10b981; font-weight: bold; font-size: 20px; }
+
+        .getting-started { background: #f8fafc; }
+        .steps { max-width: 800px; margin: 40px auto 0; }
+
+        .step {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            background: #f97316;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .step h4 { display: inline; font-size: 20px; font-weight: 600; }
+        .step p { margin-top: 12px; color: #64748b; }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .screenshots { background: white; }
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        .screenshot-placeholder {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            color: #94a3b8;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .screenshot-placeholder img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .repo-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+        .repo-link a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1e3a5f;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .repo-link a:hover { background: #2c5282; }
+
+        footer { background: #1e293b; color: white; padding: 40px 0; text-align: center; }
+        footer p { margin-bottom: 12px; }
+        footer a { color: #f97316; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 36px; }
+            header .subtitle { font-size: 20px; }
+            section h2 { font-size: 28px; }
+            .pain-grid, .feature-grid, .screenshot-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>RelayDesk 接力台</h1>
+            <div class="subtitle">团队交接上下文管理</div>
+            <div class="description">
+                基于 OceanBase PowerContext SDK 构建的本地 Web 应用，让团队成员记录进展，
+                并在下一次工作时通过 PowerContext 恢复有来源的项目上下文。
+            </div>
+            <p style="margin-top:24px"><a href="#run" style="color:#fff">本地体验与复现</a> · <a href="https://github.com/Client-Qv0/cpt-powercontext/tree/2026-competition-ecosystem/qoder" style="color:#fff">查看完整源码</a></p>
+        </div>
+    </header>
+
+    <section class="pain-points">
+        <div class="container">
+            <h2>真实痛点</h2>
+            <div class="pain-grid">
+                <div class="pain-card">
+                    <h4>交接混乱</h4>
+                    <p>小型开发、学习或竞赛团队在交接时需要反复从聊天整理"已完成什么、下一步做什么、哪个版本经过验证"。</p>
+                </div>
+                <div class="pain-card">
+                    <h4>版本混淆</h4>
+                    <p>尤其容易把最新代码版本误当成平台已经评测过的版本，导致重复工作或错误判断。</p>
+                </div>
+                <div class="pain-card">
+                    <h4>上下文丢失</h4>
+                    <p>项目进展、决策依据、评测结果散落在各处，新成员难以快速了解项目全貌。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>核心功能</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h4>项目管理</h4>
+                    <p>创建和管理多个项目，按项目隔离数据（PowerContext Scope），清晰的进度概览。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h4>进展记录</h4>
+                    <p>记录标题、正文、负责人、状态、下一步、代码分支、commit 和评测结果，支持区分进展/代码版本/评测三种记录类型。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔀</div>
+                    <h4>版本对照</h4>
+                    <p>分开展示"最新代码版本"和"最近评测版本"，明确显示未评测更新，补录旧版评测不会倒退代码指针。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h4>交接查询</h4>
+                    <p>使用 PowerContext 的确定性 candidate pipeline 和 FTS 检索已保存记录，给出有原生 SourceRef 链路引用的交接摘要。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h4>技术证明</h4>
+                    <p>显示 PowerContext 操作的实际返回结果，包括 scope/source/entry/memory 标识、操作类型及服务端时间。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎭</div>
+                    <h4>演示数据</h4>
+                    <p>支持载入完全虚构的样例团队资料（幂等导入），所有样例数据明确标注"虚构样例"，不代表本作品实测效果。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="powercontext">
+        <div class="container">
+            <h2>PowerContext 的实际作用</h2>
+            <div class="powercontext-content">
+                <p>
+                    RelayDesk 实际使用 <a href="https://github.com/Client-Qv0/cpt-powercontext" target="_blank">PowerContext SDK</a>，
+                    使用其 builtin runtime 和 SQLite backend 实现核心的记录、来源追溯和上下文复用能力。
+                </p>
+                <p>
+                    所有数据通过 PowerContext 的 Scope、Source、Memory 和 Context API 进行管理，
+                    确保数据持久化、项目隔离和有来源引用的上下文检索。
+                </p>
+
+                <h3>使用的 PowerContext API</h3>
+                <ul class="tech-list">
+                    <li><strong>Scope 管理</strong>：每个项目对应一个独立的 Scope，实现数据隔离</li>
+                    <li><strong>Source 捕获</strong>：进展记录作为 durable Source 存储，保留完整历史</li>
+                    <li><strong>确定性 candidate_pipeline + flush</strong>：通过自定义 ProgressContentPipeline 将 ContentSource 转换为 MemoryEntryInput，保留原生 SourceRef 链路</li>
+                    <li><strong>Memory 搜索 (FTS)</strong>：使用 SQLite 全文搜索检索已保存记录</li>
+                    <li><strong>Context Preparation</strong>：查询时准备有来源引用的上下文</li>
+                    <li><strong>Records API</strong>：通过 current_memory_entry().sources 和 get_source() 追溯原始来源</li>
+                </ul>
+
+                <h3>技术特点</h3>
+                <ul class="tech-list">
+                    <li>使用 PowerContext builtin runtime，无需外部服务</li>
+                    <li>SQLite backend，数据本地持久化</li>
+                    <li>确定性来源整理，不需要外部 LLM Key</li>
+                    <li>真实 API 调用，非 mock 或 fallback</li>
+                    <li>数据重启后可恢复，项目间完全隔离</li>
+                    <li>原生 SourceRef 链路，非手工构造</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="screenshots">
+        <div class="container">
+            <h2>真实运行截图</h2><p style="text-align:center;margin-bottom:24px">下图来自本地运行的应用，内容为明确标注的虚构样例。本页为展示站，完整应用可按下方说明本地体验。</p>
+            <div class="screenshot-grid">
+                <div class="screenshot-placeholder" id="screenshot-projects">
+                    <a href="images/projects-view.jpg" target="_blank"><img src="images/projects-view.jpg" alt="项目概览截图"><p>项目与持久化 Scope</p></a>
+                </div>
+                <div class="screenshot-placeholder" id="screenshot-handoff">
+                    <a href="images/handoff-query.jpg" target="_blank"><img src="images/handoff-query.jpg" alt="交接查询截图"><p>交接查询与原文引用（点击放大）</p></a>
+                </div>
+                <div class="screenshot-placeholder" id="screenshot-versions">
+                    <a href="images/versions-view.jpg" target="_blank"><img src="images/versions-view.jpg" alt="版本对照截图"><p>最新代码与最近评测分开显示</p></a>
+                </div>
+                <div class="screenshot-placeholder" id="screenshot-evidence">
+                    <a href="images/evidence-panel.jpg" target="_blank"><img src="images/evidence-panel.jpg" alt="技术证明截图"><p>实际 SourceRef 与 Memory 标识</p></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="getting-started" id="run">
+        <div class="container">
+            <h2>本地运行</h2>
+            <p style="text-align:center">主要应用代码由 Qoder CLI 开发，Codex 完成独立验收和部分 QA 修正。已验证 12 项独立测试通过；尚未申报平台得分或真实用户提效数据。</p>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h4>克隆仓库</h4>
+                    <p>获取源代码：</p>
+                    <div class="code-block">git clone --branch 2026-competition-ecosystem --single-branch https://github.com/Client-Qv0/cpt-powercontext.git
+cd cpt-powercontext/qoder</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h4>安装依赖</h4>
+                    <p>确保已安装 Python 3.12 和 Git，然后安装依赖（包含 PowerContext SDK）：</p>
+                    <div class="code-block">python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r backend/requirements.txt</div>
+                    <p>PowerContext SDK 通过 requirements.txt 固定到公开 Git revision 安装：</p>
+                    <div class="code-block">powercontext[builtin] @ git+https://github.com/Client-Qv0/cpt-powercontext.git@6d56d1ae5a0f944e04f70233d04f2b8c010b1f7b</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h4>启动服务</h4>
+                    <p>运行启动脚本：</p>
+                    <div class="code-block">python run_server.py</div>
+                    <p>服务启动后访问 http://127.0.0.1:8000/</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <h4>验证功能</h4>
+                    <p>运行独立验收测试验证完整工作流：</p>
+                    <div class="code-block">python -m pytest -q tests/test_independent_acceptance.py</div>
+                </div>
+            </div>
+
+            <div class="repo-link">
+                <a href="https://github.com/Client-Qv0/cpt-powercontext/tree/2026-competition-ecosystem/qoder" target="_blank">查看源代码仓库</a>
+            </div>
+            <p style="text-align:center;margin-top:20px"><a href="https://github.com/Client-Qv0/cpt-powercontext/blob/2026-competition-ecosystem/qoder/VALIDATION.md">验证样例</a> · <a href="https://github.com/Client-Qv0/cpt-powercontext/blob/2026-competition-ecosystem/qoder/DEVELOPMENT.md">Qoder 开发记录</a> · <a href="https://github.com/Client-Qv0/cpt-powercontext/blob/2026-competition-ecosystem/qoder/README.md">完整运行说明</a></p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p><strong>RelayDesk 接力台</strong> v0.1.0</p>
+            <p>
+                本参赛作品使用 <a href="https://github.com/Client-Qv0/cpt-powercontext" target="_blank">PowerContext SDK</a>
+                (Copyright 2026 OceanBase, Licensed under Apache 2.0)
+            </p>
+            <p>
+                PowerContext 官方上游：<a href="https://github.com/oceanbase/powercontext" target="_blank">oceanbase/powercontext</a>；本作品固定安装来源： <a href="https://github.com/Client-Qv0/cpt-powercontext" target="_blank">GitHub Client-Qv0/cpt-powercontext</a>
+                | Revision: 6d56d1ae5a0f944e04f70233d04f2b8c010b1f7b
+            </p>
+            <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
+                本应用为本地开发工具，数据仅存储在本地，不包含密码、令牌或真实个人资料。
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

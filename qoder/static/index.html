@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RelayDesk 接力台 - 团队交接上下文管理</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>🔄 RelayDesk</h1>
+                <p class="subtitle">接力台</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="projects">
+                    <span class="icon">📋</span>
+                    <span>项目概览</span>
+                </button>
+                <button class="nav-item" data-view="timeline">
+                    <span class="icon">📝</span>
+                    <span>进展时间线</span>
+                </button>
+                <button class="nav-item" data-view="handoff">
+                    <span class="icon">🔍</span>
+                    <span>交接查询</span>
+                </button>
+                <button class="nav-item" data-view="versions">
+                    <span class="icon">🔀</span>
+                    <span>版本对照</span>
+                </button>
+                <button class="nav-item" data-view="evidence">
+                    <span class="icon">⚙️</span>
+                    <span>技术证明</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-secondary btn-block" id="loadDemoBtn">
+                    载入演示数据
+                </button>
+                <p class="version">v0.1.0</p>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <!-- Projects View -->
+            <section id="projectsView" class="view active">
+                <div class="view-header">
+                    <h2>项目列表</h2>
+                    <button class="btn btn-primary" id="createProjectBtn">+ 新建项目</button>
+                </div>
+
+                <div id="projectsList" class="cards-grid">
+                    <!-- Projects will be rendered here -->
+                </div>
+
+                <div id="projectsEmpty" class="empty-state" style="display: none;">
+                    <p>暂无项目</p>
+                    <p class="hint">点击"新建项目"或"载入演示数据"开始</p>
+                </div>
+            </section>
+
+            <!-- Timeline View -->
+            <section id="timelineView" class="view">
+                <div class="view-header">
+                    <h2>进展时间线</h2>
+                    <select id="projectSelector" class="select">
+                        <option value="">选择项目...</option>
+                    </select>
+                </div>
+
+                <div id="timelineContent">
+                    <div class="empty-state">
+                        <p>请选择一个项目查看进展</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary fab" id="addProgressBtn" style="display: none;" aria-label="新增进展" title="新增进展">+</button>
+            </section>
+
+            <!-- Handoff Query View -->
+            <section id="handoffView" class="view">
+                <div class="view-header">
+                    <h2>交接查询</h2>
+                </div>
+
+                <div class="query-box">
+                    <select id="handoffProjectSelector" class="select">
+                        <option value="">选择项目...</option>
+                    </select>
+                    <textarea
+                        id="handoffQuestion"
+                        class="textarea"
+                        placeholder="输入您的问题，例如：当前项目进展如何？下一步需要做什么？"
+                        rows="3"
+                    ></textarea>
+                    <button class="btn btn-primary" id="queryHandoffBtn">查询交接上下文</button>
+                </div>
+
+                <div id="handoffLoading" class="loading-state" style="display: none;">正在查询 PowerContext...</div>
+
+                <div id="handoffResult" class="result-box" style="display: none;">
+                    <!-- Results will be rendered here -->
+                </div>
+            </section>
+
+            <!-- Versions View -->
+            <section id="versionsView" class="view">
+                <p class="hint">演示数据均为虚构样例。评测结果由用户手工记录，本应用不会自动访问或提交赛事评测。</p>
+                <div class="view-header">
+                    <h2>代码/评测版本对照</h2>
+                    <select id="versionsProjectSelector" class="select">
+                        <option value="">选择项目...</option>
+                    </select>
+                </div>
+
+                <div id="versionsContent">
+                    <div class="empty-state">
+                        <p>请选择一个项目查看版本状态</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Evidence View -->
+            <section id="evidenceView" class="view">
+                <div class="view-header">
+                    <h2>PowerContext 操作证据</h2>
+                </div>
+
+                <div class="evidence-panel">
+                    <h3>最近操作</h3>
+                    <div id="evidenceList" class="evidence-list">
+                        <div class="empty-state">
+                            <p>暂无操作记录</p>
+                            <p class="hint">执行 PowerContext 操作后，此处将显示实际返回的来源标识、查询结果及时间</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="createProjectModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建项目</h3>
+                <button class="modal-close" data-modal="createProjectModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="projectName">项目名称</label>
+                    <input type="text" id="projectName" class="input" placeholder="输入项目名称">
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">项目描述</label>
+                    <textarea id="projectDescription" class="textarea" placeholder="输入项目描述" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal="createProjectModal">取消</button>
+                <button class="btn btn-primary" id="confirmCreateProject">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addProgressModal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>新增进展记录</h3>
+                <button class="modal-close" data-modal="addProgressModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="progressTitle">标题 *</label>
+                        <input type="text" id="progressTitle" class="input" placeholder="进展标题">
+                    </div>
+                    <div class="form-group">
+                        <label for="progressOwner">负责人</label>
+                        <input type="text" id="progressOwner" class="input" placeholder="可选">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="progressBody">正文 *</label>
+                    <textarea id="progressBody" class="textarea" placeholder="详细描述进展内容" rows="4"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="progressStatus">状态</label>
+                        <select id="progressStatus" class="select">
+                            <option value="进行中">进行中</option>
+                            <option value="已完成">已完成</option>
+                            <option value="待处理">待处理</option>
+                            <option value="已阻塞">已阻塞</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="progressRecordKind">记录类型</label>
+                        <select id="progressRecordKind" class="select">
+                            <option value="progress">进展</option>
+                            <option value="code">代码版本</option>
+                            <option value="evaluation">评测结果</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="progressBranch">代码分支</label>
+                        <input type="text" id="progressBranch" class="input" placeholder="可选，如 feature/auth">
+                    </div>
+                    <div class="form-group">
+                        <label for="progressCommit">Commit</label>
+                        <input type="text" id="progressCommit" class="input" placeholder="可选，完整 commit hash">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="progressEvaluation">评测结果</label>
+                        <input type="text" id="progressEvaluation" class="input" placeholder="可选，如 通过/失败">
+                    </div>
+                    <div class="form-group">
+                        <label for="progressNextSteps">下一步</label>
+                        <input type="text" id="progressNextSteps" class="input" placeholder="接下来需要做什么">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal="addProgressModal">取消</button>
+                <button class="btn btn-primary" id="confirmAddProgress">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
