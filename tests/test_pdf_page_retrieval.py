@@ -44,11 +44,25 @@ class PageEvidencePipeline:
         )
 
 
+def report_page_text(document_id, number, padding):
+    if number == 1:
+        return (
+            "Consolidated Statements of\nFinancial Position (in millions)\n"
+            "Cash 40 Receivables 60 Current assets 100\n"
+            "Current liabilities 20 Long-term debt 50 Total liabilities 70"
+        ) + padding
+    if number % 4 == 1:
+        return "Financial highlights: Cash, Current assets, Current liabilities, Debt and Equity."
+    ticker = ("Ticker: NsT\n" if document_id.startswith("NORTHSTAR") else "Ticker: SrG\n") if number == 24 else ""
+    return ticker + "North Star is a healthy company with the largest service profile. " * 8
+
+
 @pytest.mark.parametrize(
     "question",
     [
         "Does North Star have a healthy quick ratio in FY24?",
         "What is the largest liability in North Star's balance sheet for 2024?",
+        "Does NsT have positive working capital based on FY24 data?",
     ],
 )
 @pytest.mark.parametrize("padding", ["", " reconciliation" * 800], ids=["ordinary-page", "dense-page"])
@@ -60,16 +74,7 @@ def test_company_name_does_not_displace_its_financial_evidence(tmp_path, questio
         observations = []
         for document_id in ("NORTHSTAR_2024_10K", "SOUTHRIDGE_2024_10K"):
             for number in range(1, 25):
-                if number == 1:
-                    text = (
-                        "Consolidated Balance Sheets\nCash 40 Receivables 60 Current assets 100\n"
-                        "Current liabilities 20 Long-term debt 50 Total liabilities 70"
-                    )
-                    text += padding
-                elif number % 4 == 1:
-                    text = "Financial highlights: Cash, Current assets, Current liabilities, Debt and Equity."
-                else:
-                    text = "North Star is a healthy company with the largest service profile. " * 8
+                text = report_page_text(document_id, number, padding)
                 page = PDFPageInput(document_id=document_id, document_sha256="a" * 64, page_number=number, text=text)
                 observations.append(project_source_for_transport(registry, await registry.resolve(page)))
         expected_source = observations[0].name

@@ -20,6 +20,7 @@ import io
 import math
 import re
 from collections import Counter
+from itertools import pairwise
 
 from pydantic import BaseModel, Field
 from pypdf import PdfReader
@@ -286,6 +287,26 @@ _QUESTION_WORDS = frozenset([
     "meaningful",
     "conventional",
     "roughly",
+    "over",
+    "units",
+    "percents",
+    "round",
+    "rounded",
+    "one",
+    "two",
+    "three",
+    "decimal",
+    "place",
+    "places",
+    "line",
+    "item",
+    "items",
+    "asked",
+    "utilizing",
+    "clearly",
+    "address",
+    "base",
+    "judgments",
 ])
 
 
@@ -359,7 +380,12 @@ async def search_pdf_pages(memory, question: str, limit: int = 10) -> tuple[Memo
 def _heading_score(text: str, intent: set[str]) -> float:
     # A physical page may start with a preceding section's final paragraphs.
     # Recognize short heading lines across the whole page, not only its prefix.
-    headings = tuple(" ".join(_TOKENS.findall(line.lower())) for line in text.splitlines() if len(line.strip()) <= 160)
+    lines = tuple(
+        " ".join(_TOKENS.findall(re.sub(r"\([^)]*\)", "", line).lower()))
+        for line in text.splitlines()
+        if line.strip() and len(line.strip()) <= 160
+    )
+    headings = (*lines, *(f"{left} {right}" for left, right in pairwise(lines)))
     prefix = r"(?:(?:condensed|consolidated|combined|unaudited) )*"
     patterns = {
         "income": prefix + r"statements? of (?:income|operations|earnings)(?: and comprehensive (?:income|loss))?",
@@ -418,7 +444,11 @@ def _matching_documents(records: tuple[MemoryEntryRecord, ...], question: str) -
     if not matched:
         # Resolve query acronyms only from this corpus, rather than maintaining a
         # dataset-specific issuer/alias table. Ambiguous acronyms do not filter.
-        acronyms = set(re.findall(r"\b[A-Z][A-Z0-9]{1,7}\b", question)) - {
+        acronyms = {
+            token
+            for token in re.findall(r"\b[A-Z][A-Za-z0-9]{1,7}\b", question)
+            if sum(character.isupper() for character in token) >= 2
+        } - {
             "USD",
             "EBITDA",
             "GAAP",
@@ -449,7 +479,19 @@ def _matching_documents(records: tuple[MemoryEntryRecord, ...], question: str) -
 def _financial_intent(question: str) -> tuple[set[str], tuple[str, ...]]:
     words = set(_TOKENS.findall(question.lower()))
     keywords = {
-        "income": {"income", "profit", "margin", "revenue", "sales", "ebitda", "earnings", "tax", "taxes"},
+        "income": {
+            "income",
+            "profit",
+            "margin",
+            "margins",
+            "revenue",
+            "sales",
+            "ebitda",
+            "earnings",
+            "tax",
+            "taxes",
+            "growth",
+        },
         "cash": {"ebitda", "capex", "depreciation", "amortization", "dividend", "dividends"},
         "balance": {
             "quick",
@@ -462,25 +504,44 @@ def _financial_intent(question: str) -> tuple[set[str], tuple[str, ...]]:
             "receivable",
             "equity",
         },
-        "segment": {"category", "categories", "segments"},
+        "segment": {"category", "categories", "segment", "segments"},
         "business": {"products", "services", "geographies", "geography", "customer", "customers"},
         "geography": {"geographies", "geography", "geographic", "countries", "regions"},
     }
     kinds = {kind for kind, vocabulary in keywords.items() if words & vocabulary}
-    concepts = []
-    if "cash flow" in question.lower():
+    balance_kinds, concepts = _balance_sheet_intent(words)
+    kinds.update(balance_kinds)
+    if re.search(r"\bcash\s*flows?\b", question.lower()):
         kinds.add("cash")
+        concepts.extend(("cash", "flows", "operating", "activities"))
+    if re.search(r"\bp\s*&\s*l\b|\bprofit and loss\b", question.lower()):
+        kinds.add("income")
+    if "growth" in words:
+        concepts.extend(("revenues", "sales", "income", "earnings"))
+    if "gross" in words and words & {"margin", "margins"}:
+        concepts.extend(("cost", "goods", "products", "sold", "sales", "revenues", "profit"))
+    if "metric" in words and words & {"useful", "relevant", "meaningful"}:
+        kinds.add("business")
+    if words & {"tax", "taxes"}:
+        concepts.extend(("income", "tax", "pretax", "before", "benefit", "provision", "expense"))
+    if words & {"category", "categories", "segment", "segments"}:
+        concepts.extend(("segments", "segment", "business", "revenues", "sales"))
+    if words & {"customer", "customers"}:
+        concepts.extend(("clients", "government", "commercial", "principal", "concentration"))
+    return kinds, tuple(concepts)
+
+
+def _balance_sheet_intent(words: set[str]) -> tuple[set[str], list[str]]:
+    """Map balance-sheet metrics to the underlying statement operands."""
+    kinds, concepts = set(), []
+    if {"working", "capital"} <= words:
+        kinds.add("balance")
+        concepts.extend(("current", "assets", "liabilities", "balance", "sheets"))
     if words & {"quick", "liquidity"}:
         concepts.extend(("cash", "current", "assets", "liabilities", "receivables", "inventories", "balance", "sheets"))
     if "ratio" in words and words & {"debt", "leverage", "current", "capital"}:
         kinds.add("balance")
         concepts.extend(("assets", "liabilities", "equity", "balance", "sheets"))
-    if words & {"tax", "taxes"}:
-        concepts.extend(("income", "tax", "pretax", "before", "benefit", "provision", "expense"))
-    if words & {"category", "categories", "segments"}:
-        concepts.extend(("segments", "segment", "business", "revenues", "sales"))
-    if words & {"customer", "customers"}:
-        concepts.extend(("clients", "government", "commercial", "principal", "concentration"))
     if words & {"ppne", "ppe"} or {"pp", "e"} <= words:
         kinds.add("balance")
         concepts.extend(("property", "plant", "equipment", "net", "assets"))
@@ -490,7 +551,7 @@ def _financial_intent(question: str) -> tuple[set[str], tuple[str, ...]]:
     if "turnover" in words and words & {"inventory", "inventories"}:
         kinds.update(("balance", "income"))
         concepts.extend(("cost", "sales", "goods", "inventories", "inventory"))
-    return kinds, tuple(concepts)
+    return kinds, concepts
 
 
 def _expand_adjacent_pages(records, selected, limit):
