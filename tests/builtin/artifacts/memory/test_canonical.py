@@ -141,6 +141,19 @@ def test_retrieval_query_is_not_held_to_the_entry_body_byte_bound() -> None:
         normalize_query("   ")
 
 
+def test_single_pdf_page_body_is_bounded_without_truncating_evidence() -> None:
+    body = "financial evidence " * 700
+    reference = {"source_type": "pdf-page", "source_id": "report-revision:1"}
+    assert normalize_text(body, source_refs=(reference,)) == body.strip()
+    encoded = entry_content_bytes(kind="source-evidence", text=body, source_refs=(reference,), artifact_refs=())
+    assert body.strip().encode() in encoded
+    with pytest.raises(ValueError, match="65536 UTF-8 bytes"):
+        normalize_text("x" * 65537, source_refs=(reference,))
+    for sources in ((), ({"source_type": "notes", "source_id": "note"},), (reference, reference)):
+        with pytest.raises(ValueError, match="8192 UTF-8 bytes"):
+            normalize_text(body, source_refs=sources)
+
+
 def test_embedding_validation_rejects_wrong_or_non_finite_vectors() -> None:
     assert validate_embedding((1, 2.5, -3), dimension=3) == (1.0, 2.5, -3.0)
     with pytest.raises(ValueError, match="3 dimensions"):

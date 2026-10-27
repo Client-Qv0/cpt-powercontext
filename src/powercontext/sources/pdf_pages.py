@@ -25,7 +25,7 @@ from pydantic import BaseModel, Field
 from pypdf import PdfReader
 
 from powercontext.builtin.artifacts.memory.models import MemoryCitation
-from powercontext.builtin.runtime.models import SearchMemoryRequest
+from powercontext.builtin.runtime.models import MemoryEntryRecord, SearchMemoryRequest
 from powercontext.sources import (
     TEXT_EVIDENCE_PROJECTION_KEY,
     AdapterSourceDefinition,
@@ -244,6 +244,48 @@ _QUESTION_WORDS = frozenset([
     "respective",
     "respective",
     "total",
+    "reasonably",
+    "healthy",
+    "profile",
+    "between",
+    "improved",
+    "improving",
+    "declined",
+    "relevant",
+    "useful",
+    "metric",
+    "measure",
+    "would",
+    "ask",
+    "about",
+    "like",
+    "explain",
+    "why",
+    "not",
+    "something",
+    "if",
+    "then",
+    "who",
+    "assume",
+    "you",
+    "your",
+    "public",
+    "equities",
+    "using",
+    "information",
+    "end",
+    "able",
+    "could",
+    "can",
+    "should",
+    "there",
+    "more",
+    "less",
+    "most",
+    "whether",
+    "meaningful",
+    "conventional",
+    "roughly",
 ])
 
 
@@ -257,16 +299,27 @@ async def search_pdf_pages(memory, question: str, limit: int = 10) -> tuple[Memo
     )
     if not terms:
         return ()
-    expanded = tuple(dict.fromkeys((*terms, *(extra for term in terms for extra in _EXPANSIONS.get(term, ())))))
-    # Query short lexical groups so long natural-language questions do not fail
-    # admission because a page omits conversational words from the question.
-    queries = [" ".join(expanded[:16])]
-    queries.extend(" ".join(expanded[start : start + 3]) for start in range(0, min(len(expanded), 30), 3))
-    queries.extend(expanded[:32])
-    hits, ranks = await _gather_candidates(memory, queries, limit)
-    if not hits:
+    # Enumerating the public scoped snapshot preserves every genuine citation.
+    # Native FTS alone can discard a relevant issuer's pages when another issuer
+    # dominates a common financial term's bounded candidate pool.
+    records = tuple(record for record in (await memory.list()).entries if _page_location(record) is not None)
+    records = _matching_documents(records, question)
+    if not records:
         return ()
-    counts = {key: Counter(_TOKENS.findall(hit.text.lower())) for key, hit in hits.items()}
+    terms = _ranking_terms(terms, records, question)
+    intent, concept_terms = _financial_intent(question)
+    expanded = tuple(
+        dict.fromkeys(
+            _stem(term)
+            for term in (*terms, *(extra for term in terms for extra in _EXPANSIONS.get(term, ())), *concept_terms)
+        )
+    )
+    native = await memory.search(SearchMemoryRequest(query=" ".join(terms[:24]), mode="fts", limit=max(40, limit * 4)))
+    ranks = {(hit.entry_id, hit.entry_version_id): 1 / (60 + rank) for rank, hit in enumerate(native.hits, 1)}
+    hits = {(record.entry.entry_id, record.entry.entry_version_id): record for record in records}
+    counts = {
+        key: Counter(_stem(term) for term in _TOKENS.findall(record.entry.text.lower())) for key, record in hits.items()
+    }
     frequency = Counter(token for count in counts.values() for token in count)
     average = sum(sum(count.values()) for count in counts.values()) / len(counts)
     weights = {term: 1.0 if term in terms else 0.7 for term in expanded}
@@ -283,62 +336,174 @@ async def search_pdf_pages(memory, question: str, limit: int = 10) -> tuple[Memo
             for term in weights
             if count[term]
         )
-        heading = " ".join(_TOKENS.findall(hits[key].text[:650].lower()))
-        if set(terms) & {"ebitda", "income", "profit", "margin", "revenue", "sales"} and re.search(
-            r"statements? of (?:income|operations|earnings)", heading
-        ):
-            lexical += 8
-        if set(expanded) & {"cash", "capex", "depreciation", "amortization"} and re.search(
-            r"statements? of cash flows", heading
-        ):
-            lexical += 8
-        return (-lexical - ranks[key], key)
+        lexical += _heading_score(hits[key].entry.text, intent)
+        return (-lexical - ranks.get(key, 0), key)
 
     selected = []
     pages_seen = set()
-    # Every returned identity originates in public scoped Memory search. Distinct
-    # native Source identities preserve PDF revisions and physical page numbers.
-    from powercontext.builtin.runtime.models import GetMemoryEntryRequest
-
     for key in sorted(hits, key=score):
-        hit = hits[key]
-        citation = MemoryCitation(
-            memory_ref=hit.memory_ref, entry_id=hit.entry_id, entry_version_id=hit.entry_version_id
-        )
-        entry = (await memory.get(GetMemoryEntryRequest(citation=citation))).entry
+        record = hits[key]
+        entry = record.entry
         page_sources = tuple(
             sorted((ref.source_type, ref.source_id) for ref in entry.sources if ref.source_type == "pdf-page")
         )
         if not page_sources or page_sources in pages_seen:
             continue
         pages_seen.add(page_sources)
-        selected.append(citation)
+        selected.append(record.citation)
         if len(selected) == limit:
             break
-    return await _expand_adjacent_pages(memory, selected, limit)
+    return _expand_adjacent_pages(records, selected, limit)
 
 
-async def _gather_candidates(memory, queries, limit):
-    hits = {}
-    ranks = Counter()
-    for query in dict.fromkeys(queries):
-        page = await memory.search(SearchMemoryRequest(query=query, mode="fts", limit=max(40, limit * 4)))
-        for rank, hit in enumerate(page.hits, 1):
-            key = (hit.memory_ref.artifact_id, hit.entry_id, hit.entry_version_id)
-            hits[key] = hit
-            ranks[key] += 1 / (60 + rank)
-    return hits, ranks
+def _heading_score(text: str, intent: set[str]) -> float:
+    # A physical page may start with a preceding section's final paragraphs.
+    # Recognize short heading lines across the whole page, not only its prefix.
+    headings = tuple(" ".join(_TOKENS.findall(line.lower())) for line in text.splitlines() if len(line.strip()) <= 160)
+    prefix = r"(?:(?:condensed|consolidated|combined|unaudited) )*"
+    patterns = {
+        "income": prefix + r"statements? of (?:income|operations|earnings)(?: and comprehensive (?:income|loss))?",
+        "cash": prefix + r"statements? of cash flows?",
+        "balance": prefix + r"(?:balance sheets?|statements? of financial (?:position|condition))",
+        "segment": r"(?:summary of )?(?:business )?segments?(?: (?:information|results|data))?|reportable segments",
+        "business": r"our (?:business|divisions)|business overview|item \d+ business|principal products|products and services",
+        "geography": r"geographic (?:operations|regions|information)|our divisions|geographical (?:areas|regions)",
+    }
+    return 8.0 * sum(any(re.fullmatch(patterns[kind], heading) for heading in headings) for kind in intent)
 
 
-async def _expand_adjacent_pages(memory, selected, limit):
-    if len(selected) <= 1 or limit < 4:
+def _stem(term: str) -> str:
+    if len(term) > 4 and term.endswith("ies"):
+        return term[:-3] + "y"
+    return term[:-1] if len(term) > 3 and term.endswith("s") and not term.endswith("ss") else term
+
+
+def _ranking_terms(terms, records, question):
+    compact_question = "".join(_TOKENS.findall(question.lower()))
+    issuers = {
+        "".join(
+            _TOKENS.findall(re.split(r"(?:19|20)\d{2}", record.entry.text.partition("\n")[0], maxsplit=1)[0].lower())
+        )
+        for record in records
+    }
+    mentioned = {issuer for issuer in issuers if issuer in compact_question}
+    fiscal_tokens = set(re.findall(r"\bfy\s*(\d{2,4})\b", question.lower()))
+    informative = tuple(
+        dict.fromkeys(
+            _stem(term)
+            for term in terms
+            if len(term) > 1
+            and term not in fiscal_tokens
+            and not re.fullmatch(r"(?:19|20)\d{2}", term)
+            and not any(term in issuer for issuer in mentioned)
+        )
+    )
+    return informative or tuple(dict.fromkeys(_stem(term) for term in terms))
+
+
+def _matching_documents(records: tuple[MemoryEntryRecord, ...], question: str) -> tuple[MemoryEntryRecord, ...]:
+    groups = {}
+    for record in records:
+        location = _page_location(record)
+        if location is not None:
+            groups.setdefault(location[0], []).append(record)
+    compact_question = "".join(_TOKENS.findall(question.lower()))
+    matched = set()
+    for identity, pages in groups.items():
+        document_id = pages[0].entry.text.partition("\n")[0]
+        issuer = re.split(r"(?:19|20)\d{2}", document_id, maxsplit=1)[0]
+        issuer = "".join(_TOKENS.findall(issuer.lower()))
+        if len(issuer) >= 2 and issuer in compact_question:
+            matched.add(identity)
+    if not matched:
+        # Resolve query acronyms only from this corpus, rather than maintaining a
+        # dataset-specific issuer/alias table. Ambiguous acronyms do not filter.
+        acronyms = set(re.findall(r"\b[A-Z][A-Z0-9]{1,7}\b", question)) - {
+            "USD",
+            "EBITDA",
+            "GAAP",
+            "IFRS",
+            "ROE",
+            "ROA",
+            "EPS",
+            "COGS",
+            "FY",
+        }
+        for acronym in acronyms:
+            if re.fullmatch(r"FY\d+", acronym):
+                continue
+            owners = {
+                identity
+                for identity, pages in groups.items()
+                if any(acronym.lower() in _TOKENS.findall(page.entry.text.lower()) for page in pages)
+            }
+            if len(owners) == 1:
+                matched.update(owners)
+    return tuple(
+        record
+        for record in records
+        if not matched or ((location := _page_location(record)) is not None and location[0] in matched)
+    )
+
+
+def _financial_intent(question: str) -> tuple[set[str], tuple[str, ...]]:
+    words = set(_TOKENS.findall(question.lower()))
+    keywords = {
+        "income": {"income", "profit", "margin", "revenue", "sales", "ebitda", "earnings", "tax", "taxes"},
+        "cash": {"ebitda", "capex", "depreciation", "amortization", "dividend", "dividends"},
+        "balance": {
+            "quick",
+            "liquidity",
+            "assets",
+            "liabilities",
+            "liability",
+            "balance",
+            "inventory",
+            "receivable",
+            "equity",
+        },
+        "segment": {"category", "categories", "segments"},
+        "business": {"products", "services", "geographies", "geography", "customer", "customers"},
+        "geography": {"geographies", "geography", "geographic", "countries", "regions"},
+    }
+    kinds = {kind for kind, vocabulary in keywords.items() if words & vocabulary}
+    concepts = []
+    if "cash flow" in question.lower():
+        kinds.add("cash")
+    if words & {"quick", "liquidity"}:
+        concepts.extend(("cash", "current", "assets", "liabilities", "receivables", "inventories", "balance", "sheets"))
+    if "ratio" in words and words & {"debt", "leverage", "current", "capital"}:
+        kinds.add("balance")
+        concepts.extend(("assets", "liabilities", "equity", "balance", "sheets"))
+    if words & {"tax", "taxes"}:
+        concepts.extend(("income", "tax", "pretax", "before", "benefit", "provision", "expense"))
+    if words & {"category", "categories", "segments"}:
+        concepts.extend(("segments", "segment", "business", "revenues", "sales"))
+    if words & {"customer", "customers"}:
+        concepts.extend(("clients", "government", "commercial", "principal", "concentration"))
+    if words & {"ppne", "ppe"} or {"pp", "e"} <= words:
+        kinds.add("balance")
+        concepts.extend(("property", "plant", "equipment", "net", "assets"))
+    if {"capital", "intensive"} <= words:
+        kinds.update(("balance", "income"))
+        concepts.extend(("property", "plant", "equipment", "assets", "sales", "revenues"))
+    if "turnover" in words and words & {"inventory", "inventories"}:
+        kinds.update(("balance", "income"))
+        concepts.extend(("cost", "sales", "goods", "inventories", "inventory"))
+    return kinds, tuple(concepts)
+
+
+def _expand_adjacent_pages(records, selected, limit):
+    if len(selected) <= 1 or limit < 5:
         return tuple(selected)
-    records = (await memory.list()).entries
     location, citation_location = _page_locations(records)
-    anchors = selected[: max(1, limit // 2)]
+    # Preserve the ranked evidence pool. The former 50% neighbor reservation
+    # evicted relevant pages 11-20 even when the neighboring pages were unrelated.
+    reserve = min(4, limit // 5)
+    anchors = selected[: max(1, limit - reserve)]
     chosen = list(anchors)
     used = {(citation.entry_id, citation.entry_version_id) for citation in chosen}
-    for citation in anchors[:5]:
+    for citation in anchors[:2]:
         origin = citation_location.get((citation.entry_id, citation.entry_version_id))
         if origin is None:
             continue
@@ -371,3 +536,11 @@ def _page_locations(records):
                 location[key] = record.citation
                 citation_location[(record.citation.entry_id, record.citation.entry_version_id)] = key
     return location, citation_location
+
+
+def _page_location(record: MemoryEntryRecord) -> tuple[str, int] | None:
+    references = [source for source in record.entry.sources if source.source_type == "pdf-page"]
+    if len(references) != 1:
+        return None
+    prefix, separator, number = references[0].source_id.rpartition(":")
+    return (prefix, int(number)) if separator and number.isdigit() else None

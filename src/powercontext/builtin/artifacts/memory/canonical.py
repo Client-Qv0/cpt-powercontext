@@ -37,7 +37,7 @@ class _CanonicalValueError(ValueError):
     def __init__(self, code: str, detail: object | None = None) -> None:
         self.code = code
         messages = {
-            "text-too-long": "memory entry text must not exceed 8192 UTF-8 bytes",
+            "text-too-long": f"memory entry text must not exceed {detail or 8192} UTF-8 bytes",
             "reason-too-long": "memory change reason must not exceed 512 Unicode code points",
             "identifier-empty": "memory identifiers must be non-empty strings",
             "identifier-ascii": "memory identifiers must contain only ASCII characters",
@@ -78,12 +78,23 @@ def canonical_json(value: object) -> bytes:
     return rfc8785.dumps(_validated_json(value))
 
 
-def normalize_text(value: str) -> str:
-    """Normalize and validate one durable entry body."""
+def normalize_text(value: str, *, source_refs: Sequence[object] = ()) -> str:
+    """Validate ordinary notes or one indivisible captured PDF page.
+
+    Physical PDF pages cannot be truncated or merged into neighboring evidence.
+    Allow a bounded 64 KiB body for a single page while retaining the historical
+    8 KiB limit for ordinary notes and aggregates of multiple sources.
+    """
 
     normalized = _normalize_non_empty_string(value, "memory entry text")
-    if len(normalized.encode("utf-8")) > 8192:
-        raise _CanonicalValueError("text-too-long")
+    page_evidence = (
+        len(source_refs) == 1
+        and isinstance(source_refs[0], Mapping)
+        and cast(Mapping[str, object], source_refs[0]).get("source_type") == "pdf-page"
+    )
+    limit = 65536 if page_evidence else 8192
+    if len(normalized.encode("utf-8")) > limit:
+        raise _CanonicalValueError("text-too-long", limit)
     return normalized
 
 
@@ -160,7 +171,7 @@ def entry_content_bytes(
 
     return canonical_json({
         "kind": normalize_kind(kind),
-        "text": normalize_text(text),
+        "text": normalize_text(text, source_refs=source_refs),
         "source_refs": normalize_refs(source_refs),
         "artifact_refs": normalize_refs(artifact_refs),
     })
