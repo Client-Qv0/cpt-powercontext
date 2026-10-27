@@ -95,14 +95,58 @@ _STOP = frozenset([
     "found",
     "suggest",
     "suggests",
+    "after",
+    "before",
+    "also",
+    "we",
+    "our",
+    "their",
+    "they",
+    "them",
+    "there",
+    "each",
+    "both",
+    "while",
+    "over",
+    "under",
+    "more",
+    "less",
+    "other",
+    "following",
+    "compared",
+    "however",
+    "therefore",
+    "total",
+    "only",
+    "respectively",
 ])
 _WORDS = re.compile(r"[^\W_]+", re.UNICODE)
 _BREAK = re.compile(r"(?<=[.!?])\s+|\n+")
+_CONCEPTS = {
+    term: canonical
+    for canonical, variants in (
+        ("cancer", ("cancer", "cancers", "carcinoma", "carcinomas", "tumor", "tumors", "tumour", "tumours")),
+        ("outcome", ("outcome", "outcomes", "prognosis", "prognostic")),
+        ("growth", ("growth", "growing", "proliferation", "proliferative")),
+        ("interaction", ("bind", "binds", "binding", "bound", "interact", "interacts", "interaction", "interactions")),
+        ("cleavage", ("cleave", "cleaves", "cleaved", "cleaving", "cleavage")),
+        (
+            "association",
+            ("associate", "associated", "association", "correlate", "correlated", "correlates", "correlation"),
+        ),
+        ("mirna", ("mirna", "mirnas", "microrna", "micrornas")),
+        ("mortality", ("mortality", "death", "deaths")),
+        ("increase", ("increase", "increases", "increased", "increasing", "elevated", "higher", "enhanced")),
+        ("decrease", ("decrease", "decreases", "decreased", "decreasing", "reduce", "reduces", "reduced", "lower")),
+    )
+    for term in variants
+}
 
 
 def _terms(text):
     terms = []
     for term in _WORDS.findall(text.casefold()):
+        term = _CONCEPTS.get(term, term)
         if term in _STOP:
             continue
         if len(term) > 5 and term.endswith("ies"):
@@ -132,16 +176,11 @@ def _sentences(group):
         start = 0
         seen = set()
         for boundary in (*_BREAK.finditer(hit.text), None):
-            end = len(hit.text) if boundary is None else boundary.start()
-            left, right = start, end
-            while left < right and hit.text[left].isspace():
-                left += 1
-            while right > left and hit.text[right - 1].isspace():
-                right -= 1
-            text = hit.text[left:right]
-            if text and text not in seen:
-                seen.add(text)
-                yield _Sentence(PreparedEvidenceFragment(address, left, right, text), tuple(_terms(text)))
+            end = len(hit.text) if boundary is None else boundary.end()
+            text = hit.text[start:end]
+            if text.strip() and text.strip() not in seen:
+                seen.add(text.strip())
+                yield _Sentence(PreparedEvidenceFragment(address, start, end, text), tuple(_terms(text)))
             if boundary is not None:
                 start = boundary.end()
 
@@ -169,6 +208,11 @@ def _merge(selected, originals):
     groups = {}
     for sentence in selected:
         fragment = sentence.fragment
+        original = originals[_key(fragment.address)]
+        start = fragment.start
+        while start > 0 and original[start - 1].isspace():
+            start -= 1
+        fragment = PreparedEvidenceFragment(fragment.address, start, fragment.end, original[start : fragment.end])
         groups.setdefault(_key(fragment.address), []).append(fragment)
     merged = []
     for key, spans in groups.items():
@@ -176,7 +220,11 @@ def _merge(selected, originals):
         text = originals[key]
         current = None
         for span in sorted(spans, key=lambda item: item.start):
-            if current is not None and (span.start <= current.end or not text[current.end : span.start].strip()):
+            if current is not None and (
+                span.start <= current.end
+                or not text[current.end : span.start].strip()
+                or _joined_is_smaller(current, span, text)
+            ):
                 end = max(current.end, span.end)
                 current = PreparedEvidenceFragment(address, current.start, end, text[current.start : end])
             else:
@@ -186,6 +234,12 @@ def _merge(selected, originals):
         if current is not None:
             merged.append(current)
     return tuple(merged)
+
+
+def _joined_is_smaller(first, last, original):
+    """A short literal gap can cost less than repeating the complete citation."""
+    joined = PreparedEvidenceFragment(first.address, first.start, last.end, original[first.start : last.end])
+    return len(_render((joined,)).encode("utf-8")) <= len(_render((first, last)).encode("utf-8"))
 
 
 def _key(address):
@@ -201,6 +255,13 @@ def _key(address):
 def select_evidence(request, groups):
     sentences = [sentence for group in groups for sentence in _sentences(group)]
     query = set(_terms(request.query))
+    entities = {
+        term
+        for word in _WORDS.findall(request.query)
+        if sum(character.isupper() for character in word) >= 2
+        or (any(character.isdigit() for character in word) and any(character.isalpha() for character in word))
+        for term in _terms(word)
+    }
     originals = {
         _key(
             MemoryEntryAddress(
@@ -210,13 +271,13 @@ def select_evidence(request, groups):
         for group in groups
         for hit in group.hits
     }
-    scored = _score_candidates(sentences, query, originals)
+    scored = _score_candidates(sentences, query, originals, entities)
     # A small bounded beam trades citation overhead against evidence coverage. All
     # states contain literal spans; every candidate is measured after serialization.
-    states = [(0.0, (), frozenset(), "")]
+    states = [(0.0, (), "")]
     for candidate in scored[:24]:
         next_states = list(states)
-        for utility, selected, covered, _ in states:
+        for utility, selected, _ in states:
             if any(
                 _key(other.fragment.address) == _key(candidate.fragment.address)
                 and other.fragment.start < candidate.fragment.end
@@ -229,11 +290,13 @@ def select_evidence(request, groups):
             content = _render(fragments)
             if len(content.encode("utf-8")) > request.max_bytes:
                 continue
-            new_terms = frozenset(candidate.terms) & query
-            gain = candidate.score * (0.3 + 0.7 * len(new_terms - covered) / max(1, len(new_terms)))
-            next_states.append((utility + gain, chosen, covered | new_terms, content))
-        states = sorted(next_states, key=lambda state: (-state[0], len(state[3].encode("utf-8"))))[:48]
-    _, selected, _, content = states[0]
+            next_states.append((utility + candidate.score, chosen, content))
+        distinct = {}
+        for state in next_states:
+            if state[2] not in distinct or state[0] > distinct[state[2]][0]:
+                distinct[state[2]] = state
+        states = sorted(distinct.values(), key=lambda state: (-state[0], len(state[2].encode("utf-8"))))[:48]
+    _, selected, content = states[0]
     fragments = _merge(selected, originals)
     return PreparedContextBuild(
         context=PreparedContext(
@@ -246,36 +309,37 @@ def select_evidence(request, groups):
     )
 
 
-def _score_candidates(sentences, query, originals):
+def _score_candidates(sentences, query, originals, entities):
     frequency = Counter(term for sentence in sentences for term in set(sentence.terms))
     average = sum(len(sentence.terms) for sentence in sentences) / max(1, len(sentences))
     scored = []
+    by_entry = {}
+    for sentence in sentences:
+        by_entry.setdefault(_key(sentence.fragment.address), []).append(sentence)
+    entity_weights = {
+        term: 4.0
+        for term in entities
+        if sum(any(term in sentence.terms for sentence in entry) for entry in by_entry.values()) == 1
+    }
     raw_scores = {}
     for sentence in sentences:
         counts = Counter(sentence.terms)
         score = sum(
             math.log(1 + (len(sentences) - frequency[term] + 0.5) / (frequency[term] + 0.5))
+            * entity_weights.get(term, 1.0)
             * (counts[term] * 2.2)
             / (counts[term] + 1.2 * (0.25 + 0.75 * len(sentence.terms) / max(1, average)))
-            for term in query & counts.keys()
+            for term in sorted(query & counts.keys())
         )
         raw_scores[id(sentence)] = score
-    by_entry = {}
-    for sentence in sentences:
-        by_entry.setdefault(_key(sentence.fragment.address), []).append(sentence)
-    for entry_sentences in by_entry.values():
+    document_weights = _document_weights(by_entry, query, entity_weights)
+    for entry_key, entry_sentences in by_entry.items():
+        peak = max(raw_scores[id(sentence)] for sentence in entry_sentences)
         for index, sentence in enumerate(entry_sentences):
-            score = raw_scores[id(sentence)]
+            score = _sentence_score(sentence, raw_scores[id(sentence)], peak, index / max(1, len(entry_sentences) - 1))
+            score *= document_weights[entry_key]
             if not score:
                 continue
-            # Abstract conclusions and explicit observations are modest priors,
-            # not evidence substitutes; all selections remain original spans.
-            position = index / max(1, len(entry_sentences) - 1)
-            score *= 1 + 0.2 * position
-            if re.search(
-                r"\b(results?|conclusions?|demonstrate[ds]?|observed|we show|we found)\b", sentence.fragment.text, re.I
-            ):
-                score *= 1.15
             scored.append(_Sentence(sentence.fragment, sentence.terms, score))
             for neighbor_index in (index - 1, index + 1):
                 if not 0 <= neighbor_index < len(entry_sentences):
@@ -288,8 +352,47 @@ def _score_candidates(sentences, query, originals):
                 )
                 scored.append(
                     _Sentence(
-                        fragment, (*sentence.terms, *neighbor.terms), score * 1.2 + raw_scores[id(neighbor)] * 0.4
+                        fragment,
+                        (*sentence.terms, *neighbor.terms),
+                        score * 1.2 + raw_scores[id(neighbor)] * document_weights[entry_key] * 0.4,
                     )
                 )
-    scored.sort(key=lambda sentence: -sentence.score)
-    return scored
+    return _unique_candidates(scored)
+
+
+def _sentence_score(sentence, score, peak, position):
+    # Numerical results may answer a claim without repeating the paper's entities.
+    if re.match(r"\s*(?:RESULTS?|CONCLUSIONS?)\b", sentence.fragment.text):
+        score += peak * 0.35
+    score *= 1 + 0.35 * position
+    if re.search(
+        r"\b(results?|conclusions?|demonstrate[ds]?|observed|we show|we found)\b", sentence.fragment.text, re.I
+    ):
+        score *= 1.5
+    return score
+
+
+def _document_weights(by_entry, query, entity_weights):
+    """Keep isolated generic matches from displacing coherent document evidence."""
+    terms = {key: {term for sentence in sentences for term in sentence.terms} for key, sentences in by_entry.items()}
+    frequency = Counter(term for vocabulary in terms.values() for term in vocabulary)
+    weights = {
+        term: (1 + math.log((len(terms) + 1) / (frequency[term] + 0.5))) * entity_weights.get(term, 1.0)
+        for term in query
+        if frequency[term]
+    }
+    coverage = {
+        key: sum(weights[term] for term in sorted(weights.keys() & vocabulary)) for key, vocabulary in terms.items()
+    }
+    best = max(coverage.values(), default=0) or 1
+    return {key: 0.25 + 0.75 * (score / best) ** 2 for key, score in coverage.items()}
+
+
+def _unique_candidates(scored):
+    """A neighboring pair can be proposed from either sentence; count it once."""
+    distinct = {}
+    for sentence in scored:
+        key = (_key(sentence.fragment.address), sentence.fragment.start, sentence.fragment.end)
+        if key not in distinct or sentence.score > distinct[key].score:
+            distinct[key] = sentence
+    return sorted(distinct.values(), key=lambda sentence: (-sentence.score, sentence.fragment.text))
