@@ -10,16 +10,18 @@
 
 ---
 
-## 0. 当前分支状态（先读）
+## 0. 复现状态说明（先读）
 
-`sample_project/` 当前提交的是**修改前基线**：
+本目录按“先修改前基线、再由 MiniMax 修改”的顺序复现：
 
-- 目标功能测试 `tests/test_catalog_filters.py` 有 8 个用例失败；
-- 回归测试 23 个用例全部通过；
-- 这是为了可复现地证明“同一组目标测试修改前失败、修改后通过”。
+- 如果 `sample_project/` 的目标测试是 **8 failed / 回归 23 passed**，说明当前处于
+  **修改前基线**，尚未运行 `apply`；
+- 运行 `python -m specanchor apply`（需要 `MINIMAX_API_KEY`）后，MiniMax 会基于本模块
+  给出的上下文生成补丁、应用补丁并跑测试，目标测试应为 **8 passed**、回归 **23 passed**、
+  全量 **32 passed**；
+- 成功后在 `evidence/runs/<时间>-TASK-BOOK-0042-<id>/` 留下上下文、提示词、模型响应、
+  补丁、日志和 PowerContext 状态，并把 `sample_project` 更新为通过状态。
 
-运行 `python -m specanchor apply`（需要 `MINIMAX_API_KEY`）后，MiniMax 会基于本模块给出的上下文生成补丁、应用补丁并跑测试；
-成功后在 `evidence/runs/<时间>-TASK-BOOK-0042-<id>/` 留下上下文、提示词、模型响应、补丁、日志和 PowerContext 状态，并把 `sample_project` 更新为通过状态。
 随后运行：
 
 ```bash
@@ -28,7 +30,8 @@ python scripts/render_evidence.py
 ```
 
 即可生成 `evidence/test-logs/`、`evidence/verify-change.json` 与四份技术使用记录。
-在完成这一步之前，本目录是“上下文模块 + 验证样例 + 可一键执行的 MiniMax 修改流水线”，而不是最终产物。
+如果 `sample_project` 仍是基线而 `apply` 尚未执行，本目录是“上下文模块 + 验证样例 +
+可一键执行的 MiniMax 修改流水线”，不应作为最终评审状态。
 
 > 预期数值（本机实测，Windows 11 / Python 3.12.16）：
 > 上下文 9 条规格、8 个代码符号、8 个目标测试、14 个回归测试节点（展开 23 个用例）；
