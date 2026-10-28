@@ -287,6 +287,17 @@ python -m specanchor doctor
 
 检查 seekdb 连接、`sa_*` 表数量、PowerContext 状态文件、样例工程、Git 与 MiniMax 配置（不泄露密钥）。
 
+### 7.7 `acceptance_audit.py`：六项验收自检
+
+```bash
+python scripts/acceptance_audit.py          # 打印当前六项状态
+python scripts/acceptance_audit.py --strict # 有 pending/fail 时退出非零
+```
+
+逐项检查“能够运行、上下文正确、数据库实际参与、MiniMax 实际参与、状态能够复用、
+代码修改有效”，并写入 `evidence/acceptance-audit.json`（该文件默认不提交，避免把
+修改前状态误当成最终结果）。
+
 ---
 
 ## 8. 完整验收流程（与评分项对应）
