@@ -150,28 +150,59 @@ WSL 每次重启 IP 都可能变，所以每次都现查一次。
 
 > 应用已发布，`预览` 与 WebApp 里玩的是同一条工作流。
 
-### 没有账号 / 忘了密码
-账号：meow@example.com 密码： MeowCourt#2026
-Dify 自带两个命令行工具，不用重建数据库：
+### 本机演示账号
+
+| 项 | 值 |
+| --- | --- |
+| 邮箱 | `meow@example.com` |
+| 密码 | `MeowCourt#2026` |
+
+这是本机这套演示环境的管理员账号；换一台机器、重建一个 Dify 实例后账号密码会不同，按下面两条命令自己建或改即可。
+
+### 忘了密码：重置已有账号
 
 ```bash
 cd ~/dify/docker
-
-# 新建一个「账号 + 工作区」（首次使用、或想给评审单独开一个账号时）
-docker compose exec -T api flask create-tenant --email you@example.com --name you
-
-# 重置已有账号的密码
 docker compose exec -T api flask reset-password \
-  --email you@example.com \
+  --email meow@example.com \
   --new-password 'NewPassw0rd!' \
   --password-confirm 'NewPassw0rd!'
 ```
 
-如果 Dify 还是全新的（连管理员都没有），直接访问 `http://<WSL IP>/install` 也能在页面上初始化管理员账号。
+这条只改已有账号的密码，不依赖注册开关，改完直接用新密码登录。
 
-> **为什么本文件里不写具体账号密码**：赛题提交要求「配置示例使用占位值，不提交真实 API Key、密码或其他凭据」。仓库是公开的，所以这里只给创建/重置方法——任何人在自己的环境里都能用上面两条命令得到自己的账号。本机演示环境的账号密码记录在仓库之外的本地备忘里（不在版本库中）。
+### 想再建一个账号
 
----
+`create-tenant` 的三个选项（邮箱 / 工作区名 / 语言）**都要写全**，少一个它就会交互式提问，在 `-T` 或管道里会直接 `Aborted!`。密码不需要你提供——它**自动生成，并在最后一行打印**。
+
+Dify 默认关闭自助注册和自建工作区，所以两个开关必须一起带：
+
+```bash
+cd ~/dify/docker
+docker compose exec -T \
+  -e ALLOW_REGISTER=true \
+  -e ALLOW_CREATE_WORKSPACE=true \
+  api flask create-tenant --email grader@example.com --name grader --language zh-Hans
+```
+
+成功时输出（密码只打印这一次，记得抄下来）：
+
+```
+Account and tenant created.
+Account: grader@example.com
+Password: nyS88QJ5zQMt1odJZiFwlA
+```
+
+两种常见失败的差别：
+
+| 报错 | 原因 | 结果 |
+| --- | --- | --- |
+| `Account registration is disabled.` | 少了 `-e ALLOW_REGISTER=true` | 什么都没建 |
+| `WorkSpaceNotAllowedCreateError` | 少了 `-e ALLOW_CREATE_WORKSPACE=true` | **账号已建好、没有工作区**，登录进去是空的，所以两个开关要一起给 |
+
+如果 Dify 还是全新的（连管理员都没有），直接访问 `http://<WSL IP>/install` 在页面上初始化也行。
+
+> ⚠️ **换玩家不需要换账号**：新账号是一个空工作区，里面没有「喵喵法庭」这个应用。想「换个身份重新开始」请用无痕窗口，或调 API 时换 `user`（见第 8 节）。
 
 ## 6. 开始玩
 
