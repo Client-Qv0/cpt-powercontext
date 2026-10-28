@@ -171,11 +171,41 @@ docker compose exec -T api flask reset-password \
 
 这条只改已有账号的密码，不依赖注册开关，改完直接用新密码登录。
 
-### 想再建一个账号
+### 新建的账号为什么看不到这个游戏
 
-`create-tenant` 的三个选项（邮箱 / 工作区名 / 语言）**都要写全**，少一个它就会交互式提问，在 `-T` 或管道里会直接 `Aborted!`。密码不需要你提供——它**自动生成，并在最后一行打印**。
+Dify 里 **「账号」和「工作区」是两层**：**应用属于工作区，不属于账号**。
 
-Dify 默认关闭自助注册和自建工作区，所以两个开关必须一起带：
+同一台机器上的实测对照：
+
+| 账号 | 工作区 | 工作区里的应用 |
+| --- | --- | --- |
+| `meow@example.com` | `meow-admin's Workspace` | ✅ **喵喵法庭** |
+| 新建的账号 | 一个全新的空工作区 | ❌ 什么都没有 |
+
+所以「建账号」不等于「多一个能玩游戏的人」，只是多了一个**空的**工作区。登录错了账号，看到的当然是空的「工作室」。
+
+**登录错账号了，切回来：**
+
+1. 右上角头像 → **退出登录**
+2. 用 `meow@example.com` / `MeowCourt#2026` 重新登录
+
+### 什么时候才真的需要建账号
+
+| 需求 | 该怎么做 |
+| --- | --- |
+| 只想玩这个游戏 | 用 `meow@example.com`，不用建账号 |
+| 想「换个玩家 / 重新开始」 | **无痕窗口**，或调 API 换 `user`——不是换账号 |
+| 第二个人要独立使用 Dify 后台 | 建账号，然后还得在新工作区里**导入 DSL + 配模型 Key**（见下） |
+
+确实要把游戏搬进一个全新的工作区，三步：
+
+1. 用新账号登录 → 工作室 → **导入 DSL** → 选 `dify/dsl/meow-court.yml`
+2. 设置 → **模型供应商** → 安装/配置 DeepSeek → 填 API Key（模型凭据是**工作区级**的，新工作区要重新配）
+3. 打开应用 → `橘座法官` 节点 → 选模型 → 发布
+
+### 真要建账号时的命令
+
+`create-tenant` 三个选项（邮箱 / 工作区名 / 语言）**都要写全**，少一个它会交互提问，在 `-T` 或管道里会直接 `Aborted!`。密码不用你给——它**自动生成，并在最后一行打印**。Dify 默认关闭自助注册和自建工作区，两个开关必须一起带：
 
 ```bash
 cd ~/dify/docker
@@ -185,7 +215,7 @@ docker compose exec -T \
   api flask create-tenant --email grader@example.com --name grader --language zh-Hans
 ```
 
-成功时输出（密码只打印这一次，记得抄下来）：
+成功输出（密码只打印这一次）：
 
 ```
 Account and tenant created.
@@ -193,16 +223,12 @@ Account: grader@example.com
 Password: nyS88QJ5zQMt1odJZiFwlA
 ```
 
-两种常见失败的差别：
-
 | 报错 | 原因 | 结果 |
 | --- | --- | --- |
 | `Account registration is disabled.` | 少了 `-e ALLOW_REGISTER=true` | 什么都没建 |
-| `WorkSpaceNotAllowedCreateError` | 少了 `-e ALLOW_CREATE_WORKSPACE=true` | **账号已建好、没有工作区**，登录进去是空的，所以两个开关要一起给 |
+| `WorkSpaceNotAllowedCreateError` | 少了 `-e ALLOW_CREATE_WORKSPACE=true` | **账号已建好、没有工作区**，登录进去是空的 |
 
-如果 Dify 还是全新的（连管理员都没有），直接访问 `http://<WSL IP>/install` 在页面上初始化也行。
-
-> ⚠️ **换玩家不需要换账号**：新账号是一个空工作区，里面没有「喵喵法庭」这个应用。想「换个身份重新开始」请用无痕窗口，或调 API 时换 `user`（见第 8 节）。
+全新实例（连管理员都没有）也可以直接访问 `http://<WSL IP>/install` 在页面上初始化。
 
 ## 6. 开始玩
 
