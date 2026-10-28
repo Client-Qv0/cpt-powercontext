@@ -13,15 +13,25 @@
 ### 1. PowerContext（记忆库）
 
 ```bash
-# 在 WSL 里执行
-POWERCONTEXT_HOME=~/pcdata ~/.local/bin/powercontext server run --host 0.0.0.0 --port 8000
+# 在 WSL 里执行（注意端口是 8000）
+export POWERCONTEXT_HOME=$HOME/pcdata
+export POWERCONTEXT_SERVER_ALLOW_UNAUTHENTICATED_NON_LOOPBACK=true
+~/.local/bin/powercontext server run --host 0.0.0.0 --port 8000
 ```
+
+两个环境变量都不能少：
+
+- `POWERCONTEXT_HOME`：把记忆库固定在这个目录（默认在系统用户目录，重启 WSL 后不方便找回）。
+- `POWERCONTEXT_SERVER_ALLOW_UNAUTHENTICATED_NON_LOOPBACK=true`：PowerContext 出于安全默认拒绝在「非回环地址 + 无鉴权」的组合下启动。**只用 `127.0.0.1` 玩可以不加这个变量**，但 Dify 跑在容器里，必须用 `0.0.0.0` 才能连到，所以本地演示要显式开这个开关（生产环境请改用 Bearer token 鉴权）。
 
 看到 `{"status":"ok"}` 就对了：
 
 ```bash
 curl -s http://127.0.0.1:8000/health/live
 ```
+
+> 如果报 `refusing to bind an unauthenticated Server to a non-loopback address`，就是漏了第二个环境变量。
+> 如果报「端口被占用 / invalid value for --port」，检查端口是不是写成了 `80000`——**是 8000**。
 
 ### 2. Dify（应用平台）
 
@@ -136,6 +146,8 @@ docker compose ps
 
 | 现象 | 原因 | 处理 |
 | --- | --- | --- |
+| 启动 PowerContext 报 `refusing to bind an unauthenticated Server to a non-loopback address` | 少了开关 | 加上 `export POWERCONTEXT_SERVER_ALLOW_UNAUTHENTICATED_NON_LOOPBACK=true` 再启动（见第一步） |
+| 启动 PowerContext 报 `Invalid value for --port` / 端口被占用 | 端口写错 | 端口是 **8000**，不是 80000 |
 | 回复「⚠️ 卷宗柜打不开」 | Dify 连不上 PowerContext | 确认第 1 步在跑；Dify 容器里执行 `curl $POWERCONTEXT_BASE_URL/health/live` 应返回 `{"status":"ok"}`。Linux/WSL 还要给 `api`/`worker`/`ssrf_proxy` 加 `host.docker.internal` 映射（README 4.2） |
 | 报「模型不存在 / Provider does not exist」 | Dify 没配模型 | 设置 → 模型供应商 → 安装并配置 DeepSeek（或任一聊天模型）；再回工作流把 `橘座法官` 节点的模型重选一次 |
 | 判词变成一大段纯文本，没有「案由/刑罚」 | 模型没按 JSON 输出 | 说明这次走了降级路径（判决仍会归档）。换更强的模型或降低温度重试 |
