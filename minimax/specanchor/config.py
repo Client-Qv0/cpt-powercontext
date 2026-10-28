@@ -57,14 +57,19 @@ class Settings:
         def env(name: str, default: str = "") -> str:
             return os.environ.get(name, default)
 
+        def path_env(name: str, default: Path) -> Path:
+            raw = env(name)
+            path = Path(raw) if raw else default
+            return path.resolve() if path.is_absolute() else (PACKAGE_ROOT / path).resolve()
+
         return cls(
             db_host=env("SPECANCHOR_DB_HOST", "127.0.0.1"),
             db_port=int(env("SPECANCHOR_DB_PORT", "2881")),
             db_user=env("SPECANCHOR_DB_USER", "root"),
             db_password=env("SPECANCHOR_DB_PASSWORD", ""),
             db_name=env("SPECANCHOR_DB_NAME", "specanchor"),
-            project_root=Path(env("SPECANCHOR_PROJECT_ROOT", str(PACKAGE_ROOT / "sample_project"))).resolve(),
-            state_dir=Path(env("SPECANCHOR_STATE_DIR", str(PACKAGE_ROOT / ".state"))).resolve(),
+            project_root=path_env("SPECANCHOR_PROJECT_ROOT", PACKAGE_ROOT / "sample_project"),
+            state_dir=path_env("SPECANCHOR_STATE_DIR", PACKAGE_ROOT / ".state"),
             minimax_api_key=env("MINIMAX_API_KEY", ""),
             minimax_base_url=env("MINIMAX_BASE_URL", "https://api.minimax.cn/v1").rstrip("/"),
             minimax_model=env("MINIMAX_MODEL", "MiniMax-M3.1-Flash"),
