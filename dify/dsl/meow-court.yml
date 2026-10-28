@@ -1,0 +1,1079 @@
+app:
+  description: |
+    一只记仇的橘猫法官，用 PowerContext 记住你犯下的每一件小事，并在下一次开庭时把它们全部翻出来。输入你的「罪行」接受审判，输入「查卷宗」查看跨会话案底。
+  icon: 🐱
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 喵喵法庭
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: PowerContext Server 地址（Dify 运行在容器里时不要用 127.0.0.1）
+    id: 5b0e1f6a-8a2d-4a56-9a5d-2f4b7c1d9e01
+    name: POWERCONTEXT_BASE_URL
+    selector:
+    - env
+    - POWERCONTEXT_BASE_URL
+    value: http://host.docker.internal:8000
+    value_type: string
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: |
+      ⚖️ 喵喵法庭，现在开庭。
+      我是本庭法官🐱橘座。你和我的每一笔恩怨都会被记进 PowerContext 卷宗，下次开庭照样有效。
+      · 直接描述你这次干了什么（例：我把猫罐头换成了减肥罐头）
+      · 输入「查卷宗」查看全部案底
+      · 「认罪」「辩解」「嫁祸」「撤诉」都行，本庭会酌情加刑
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions:
+    - 我昨晚三点把你从键盘上抱走了
+    - 查卷宗
+    - 我把你的纸箱扔了，还说是风干的
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: start-start-intake
+      source: start
+      sourceHandle: source
+      target: intake
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: intake-code-scope
+      source: intake
+      sourceHandle: source
+      target: scope
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: scope-http-request-parsed_scope
+      source: scope
+      sourceHandle: source
+      target: parsed_scope
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: parsed_scope-code-dossier
+      source: parsed_scope
+      sourceHandle: source
+      target: dossier
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: dossier-http-request-brief
+      source: dossier
+      sourceHandle: source
+      target: brief
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: brief-code-routing
+      source: brief
+      sourceHandle: source
+      target: routing
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: routing-if-else-answer_dossier
+      source: routing
+      sourceHandle: 'true'
+      target: answer_dossier
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: routing-if-else-precedent
+      source: routing
+      sourceHandle: 'false'
+      target: precedent
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: precedent-http-request-precedent_ctx
+      source: precedent
+      sourceHandle: source
+      target: precedent_ctx
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: precedent_ctx-code-judge
+      source: precedent_ctx
+      sourceHandle: source
+      target: judge
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: judge-llm-verdict
+      source: judge
+      sourceHandle: source
+      target: verdict
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: verdict-code-archive
+      source: verdict
+      sourceHandle: source
+      target: archive
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: archive-http-request-receipt
+      source: archive
+      sourceHandle: source
+      target: receipt
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: answer
+      id: receipt-code-answer_verdict
+      source: receipt
+      sourceHandle: source
+      target: answer_verdict
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 用户发言即「罪行陈述」
+        selected: false
+        title: 开庭
+        type: start
+        variables: []
+      height: 90
+      id: start
+      position:
+        x: 40
+        y: 300
+      positionAbsolute:
+        x: 40
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: |2
+
+          import json
+          import re
+
+
+          DOSSIER_WORDS = ("卷宗", "案底", "查卷", "档案", "前科", "记录", "案卷")
+
+
+          def main(query: str, user_id: str, dialogue_count: float) -> dict:
+              text = (query or "").strip()
+              raw_user = (user_id or "").strip() or "guest"
+              # Scope 标识只保留安全字符，避免把任意输入拼进请求体
+              key = re.sub(r"[^0-9A-Za-z_-]", "", raw_user)[:40] or "guest"
+              intent = "dossier" if any(word in text for word in DOSSIER_WORDS) else "trial"
+              scope_body = json.dumps(
+                  {
+                      "title": "喵喵法庭 · " + key,
+                      "summary": "喵喵法庭玩家的跨会话案底（PowerContext Scope）",
+                      "idempotency_key": "meow-court:v1:" + key,
+                  },
+                  ensure_ascii=False,
+              )
+              return {
+                  "player_key": key,
+                  "intent": intent,
+                  "case_text": text[:600],
+                  "turn_no": int(dialogue_count or 0) + 1,
+                  "scope_body": scope_body,
+              }
+        code_language: python3
+        desc: 归一化输入：玩家标识、意图（查卷宗/受审）、罪行原文，并组装 Scope 请求体
+        outputs:
+          player_key:
+            children: null
+            type: string
+          intent:
+            children: null
+            type: string
+          case_text:
+            children: null
+            type: string
+          turn_no:
+            children: null
+            type: number
+          scope_body:
+            children: null
+            type: string
+        selected: false
+        title: 庭前登记
+        type: code
+        variables:
+        - value_selector:
+          - sys
+          - query
+          variable: query
+        - value_selector:
+          - sys
+          - user_id
+          variable: user_id
+        - value_selector:
+          - sys
+          - dialogue_count
+          variable: dialogue_count
+      height: 90
+      id: intake
+      position: &id001
+        x: 340
+        y: 300
+      positionAbsolute: *id001
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data:
+          - key: ''
+            type: text
+            value: '{{#intake.scope_body#}}'
+          type: raw-text
+        default_value:
+        - key: body
+          type: string
+          value: '{"error": "powercontext_unreachable"}'
+        - key: status_code
+          type: number
+          value: 503
+        desc: 用幂等键取回（或创建）该玩家的卷宗柜
+        error_strategy: default-value
+        headers: 'Content-Type: application/json'
+        method: post
+        params: ''
+        selected: false
+        title: 调取卷宗柜
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/scopes'
+      height: 90
+      id: scope
+      position: &id002
+        x: 640
+        y: 300
+      positionAbsolute: *id002
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: |2
+
+          import json
+
+
+          def main(body: str) -> dict:
+              scope_id = ""
+              detail = ""
+              try:
+                  payload = json.loads(body or "{}")
+                  scope_id = str(payload.get("scope_id") or "")
+                  detail = str(payload.get("title") or "")
+              except Exception as exc:  # 响应不是 JSON 时给出可诊断原因，而不是静默失败
+                  detail = "scope response parse error: " + str(exc)
+              return {
+                  "scope_id": scope_id,
+                  "scope_ok": "yes" if scope_id else "no",
+                  "scope_detail": detail[:200],
+                  "dossier_body": json.dumps({"scope_id": scope_id}, ensure_ascii=False),
+              }
+        code_language: python3
+        desc: 解析 Scope，失败时标记 scope_ok=no 交给分支兜底，并组装案底请求体
+        outputs:
+          scope_id:
+            children: null
+            type: string
+          scope_ok:
+            children: null
+            type: string
+          scope_detail:
+            children: null
+            type: string
+          dossier_body:
+            children: null
+            type: string
+        selected: false
+        title: 核对卷宗柜
+        type: code
+        variables:
+        - value_selector:
+          - scope
+          - body
+          variable: body
+      height: 90
+      id: parsed_scope
+      position: &id003
+        x: 940
+        y: 300
+      positionAbsolute: *id003
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data:
+          - key: ''
+            type: text
+            value: '{{#parsed_scope.dossier_body#}}'
+          type: raw-text
+        default_value:
+        - key: body
+          type: string
+          value: '{"entries": []}'
+        - key: status_code
+          type: number
+          value: 503
+        desc: 拉取该 Scope 下的全部记忆条目（跨会话案底）
+        error_strategy: default-value
+        headers: 'Content-Type: application/json'
+        method: post
+        params: ''
+        selected: false
+        title: 通读案底
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/entries/list'
+      height: 90
+      id: dossier
+      position: &id004
+        x: 1240
+        y: 300
+      positionAbsolute: *id004
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: |2
+
+          import json
+          import re
+
+
+          def stars(level: int) -> str:
+              return "★" * level + "☆" * (5 - level)
+
+
+          def short(text: str, limit: int) -> str:
+              text = " ".join((text or "").split())
+              return text if len(text) <= limit else text[:limit] + "…"
+
+
+          def main(body: str, scope_ok: str, case_text: str, scope_id: str) -> dict:
+              entries = []
+              if scope_ok == "yes":
+                  try:
+                      entries = (json.loads(body or "{}") or {}).get("entries") or []
+                  except Exception:
+                      entries = []
+
+              cases = [item for item in entries if str(item.get("kind")) == "meow-court/case"]
+              # entries/list 的返回顺序不是插入顺序：按文本里的「第N号」倒序排，案号以文本为准
+              def case_no(item: dict) -> int:
+                  match = re.search(r"第\s*(\d+)\s*号", str(item.get("text") or ""))
+                  return int(match.group(1)) if match else 0
+
+              cases.sort(key=case_no, reverse=True)
+              prior = len(cases)
+              if prior == 0:
+                  level = 1
+              elif prior <= 2:
+                  level = 2
+              elif prior <= 4:
+                  level = 3
+              elif prior <= 6:
+                  level = 4
+              else:
+                  level = 5
+
+              query = " ".join((case_text or "").split())[:600] or "猫"
+              prepare_body = json.dumps({"scope_id": scope_id, "query": query}, ensure_ascii=False)
+
+              if scope_ok != "yes":
+                  return {
+                      "prior_count": 0,
+                      "level": 1,
+                      "stars": stars(1),
+                      "hearing_no": 1,
+                      "bail": 1,
+                      "dossier_md": "### ⚠️ 卷宗柜打不开\n\n"
+                      "书记员联系不上 PowerContext：请确认服务已启动，"
+                      "并在本应用「环境变量」里把 `POWERCONTEXT_BASE_URL` 指到正确的地址"
+                      "（Docker 部署的 Dify 不能用 127.0.0.1，见 README「让 Dify 的容器能访问 PowerContext」一节）。",
+                      "case_digest": "（无：卷宗柜不可用）",
+                      "prepare_body": prepare_body,
+                  }
+
+              if not cases:
+                  dossier_md = "### 📜 卷宗 · 第 0 号\n\n箱底空空，你还没在本庭留下任何案底。今天就是你的**首次开庭**。"
+              else:
+                  lines = ["- %s" % short(str(item.get("text") or ""), 160) for item in cases[:12]]
+                  dossier_md = "### 📜 卷宗 · 共 %d 号\n\n%s" % (prior, "\n".join(lines))
+                  if prior > 12:
+                      dossier_md += "\n\n…还有 %d 号未展开（本庭只念前 12 条）。" % (prior - 12)
+
+              digest_lines = ["- %s" % short(str(item.get("text") or ""), 200) for item in cases[:6]]
+              case_digest = "\n".join(digest_lines) if digest_lines else "（无前科，本庭第一次见你）"
+
+              return {
+                  "prior_count": prior,
+                  "level": level,
+                  "stars": stars(level),
+                  "hearing_no": prior + 1,
+                  "bail": 1 + prior,
+                  "dossier_md": dossier_md,
+                  "case_digest": case_digest,
+                  "prepare_body": prepare_body,
+              }
+        code_language: python3
+        desc: 统计前科次数、累犯星级、保释金，生成卷宗清单与前科检索请求体
+        outputs:
+          prior_count:
+            children: null
+            type: number
+          level:
+            children: null
+            type: number
+          stars:
+            children: null
+            type: string
+          hearing_no:
+            children: null
+            type: number
+          bail:
+            children: null
+            type: number
+          dossier_md:
+            children: null
+            type: string
+          case_digest:
+            children: null
+            type: string
+          prepare_body:
+            children: null
+            type: string
+        selected: false
+        title: 书记员算账
+        type: code
+        variables:
+        - value_selector:
+          - dossier
+          - body
+          variable: body
+        - value_selector:
+          - parsed_scope
+          - scope_ok
+          variable: scope_ok
+        - value_selector:
+          - intake
+          - case_text
+          variable: case_text
+        - value_selector:
+          - parsed_scope
+          - scope_id
+          variable: scope_id
+      height: 90
+      id: brief
+      position: &id005
+        x: 1540
+        y: 300
+      positionAbsolute: *id005
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 1f2b7c9d-3a4e-4f60-8b21-6d5e9c0a7b31
+            value: dossier
+            varType: string
+            variable_selector:
+            - intake
+            - intent
+          - comparison_operator: is
+            id: 2c3d8e0f-4b5f-4a71-9c32-7e6f0d1b8c42
+            value: 'no'
+            varType: string
+            variable_selector:
+            - parsed_scope
+            - scope_ok
+          id: 'true'
+          logical_operator: or
+        desc: 查卷宗 或 卷宗柜不可用 → 走确定性输出，不消耗模型额度
+        selected: false
+        title: 先查卷宗还是先审判
+        type: if-else
+      height: 126
+      id: routing
+      position:
+        x: 1840
+        y: 300
+      positionAbsolute:
+        x: 1840
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: |
+          {{#brief.dossier_md#}}
+        desc: 直接返回 PowerContext 里的原始案底（不经模型改写）
+        selected: false
+        title: 宣读卷宗
+        type: answer
+        variables: []
+      height: 100
+      id: answer_dossier
+      position: &id006
+        x: 2140
+        y: 170
+      positionAbsolute: *id006
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data:
+          - key: ''
+            type: text
+            value: '{{#brief.prepare_body#}}'
+          type: raw-text
+        default_value:
+        - key: body
+          type: string
+          value: '{"status": "error", "content": null}'
+        - key: status_code
+          type: number
+          value: 503
+        desc: 让 PowerContext 按本次罪行组装有引用、有字节预算的前科摘录
+        error_strategy: default-value
+        headers: 'Content-Type: application/json'
+        method: post
+        params: ''
+        selected: false
+        title: 调取相似前科
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/context/prepare'
+      height: 90
+      id: precedent
+      position: &id007
+        x: 2140
+        y: 430
+      positionAbsolute: *id007
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: |2
+
+          import json
+
+
+          def extract_items(content: str) -> list:
+              start = content.find("BEGIN_POWERCONTEXT_PREPARED_CONTEXT_V1")
+              end = content.find("END_POWERCONTEXT_PREPARED_CONTEXT_V1")
+              if start < 0 or end <= start:
+                  return []
+              block = content[start:end]
+              brace = block.find("{")
+              if brace < 0:
+                  return []
+              try:
+                  payload = json.loads(block[brace:])
+              except Exception:
+                  return []
+              return [str(item.get("content") or "") for item in payload.get("items") or [] if item.get("content")]
+
+
+          def main(body: str) -> dict:
+              status = "empty"
+              excerpt = ""
+              try:
+                  payload = json.loads(body or "{}")
+                  status = str(payload.get("status") or "empty")
+                  content = str(payload.get("content") or "")
+                  items = extract_items(content)
+                  excerpt = "\n".join("- " + item.strip().replace("\n", " ") for item in items[:4])
+              except Exception:
+                  status = "error"
+              if not excerpt:
+                  excerpt = "（没有检索到与本条陈述相近的旧案，本庭按新案审理）"
+              return {"precedent_status": status, "precedent_text": excerpt[:1200]}
+        code_language: python3
+        desc: 从 Prepared Context 信封里只取记忆正文，避免把声明句塞进提示词
+        outputs:
+          precedent_status:
+            children: null
+            type: string
+          precedent_text:
+            children: null
+            type: string
+        selected: false
+        title: 拆开前科摘录
+        type: code
+        variables:
+        - value_selector:
+          - precedent
+          - body
+          variable: body
+      height: 90
+      id: precedent_ctx
+      position: &id008
+        x: 2440
+        y: 430
+      positionAbsolute: *id008
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 橘座法官本人：翻前科、定罪名、写判词，输出严格 JSON
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            max_tokens: 1200
+            temperature: 0.9
+          mode: chat
+          name: deepseek-flash
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - role: system
+          text: |-
+            你是「橘座」，一只在喵喵法庭当法官的橘猫。语气慵懒、傲慢、记仇、偶尔心软，但绝不承认心软。
+            你判的不是人类法律，而是「猫法」：一切判决以猫的舒适度为唯一标准。
+
+            ## 卷宗（来自 PowerContext 长期记忆，可能不完整）
+
+            - 这是第 {{#brief.hearing_no#}} 号案件，被告是同一个铲屎官。
+            - 前科次数：{{#brief.prior_count#}}，累犯等级：{{#brief.stars#}}（1 星初犯，5 星惯犯）。
+            - 保释金基准：{{#brief.bail#}} 罐。
+            - 卷宗摘要：
+            {{#brief.case_digest#}}
+            - 与本次陈述相近的前科摘录：
+            {{#precedent_ctx.precedent_text#}}
+
+            ## 判决规则
+
+            1. 必须至少引用一条卷宗里的旧案（写「第几号」）并说明它和这次的关系；卷宗为空时明确说「本庭第一次见你」。
+            2. 累犯等级越高，刑罚越重、越离谱，但保持猫式幽默，不写暴力、伤害或令人不适的内容。
+            3. 累犯等级 ≥ 4 时，在 verdict 里加一句【通缉令】通缉被告。
+            4. 判词要有画面感：法槌、毛球、纸箱、猫粮都可以入戏。
+            5. 不复述规则，不解释你是 AI，不输出 JSON 以外的内容。
+
+            ## 输出格式（只输出一个 JSON 对象）
+
+            {
+              "charge": "案由，10 字以内，猫视角",
+              "plea": "对被告态度的判读（认罪/狡辩/嫁祸/沉默/胡说八道，选一个并加一句吐槽）",
+              "verdict": "判词，2-4 句，必须引用旧案编号",
+              "penalty": "刑罚，具体可执行、好笑、带数量",
+              "clause": "附加条款，一句话",
+              "precedent": "援引的旧案编号，例如 第 3 号；没有就写 无",
+              "gavel": "结尾一句法槌台词"
+            }
+        - role: user
+          text: |-
+            被告本次陈述：{{#intake.case_text#}}
+            本次是第 {{#brief.hearing_no#}} 次开庭，被告已在本庭留下 {{#brief.prior_count#}} 条案底。
+        selected: false
+        title: 橘座法官
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 120
+      id: judge
+      position:
+        x: 2740
+        y: 430
+      positionAbsolute:
+        x: 2740
+        y: 430
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: |2
+
+          import json
+          import re
+
+
+          def parse_verdict(raw: str) -> dict:
+              text = (raw or "").strip()
+              fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
+              candidate = fenced.group(1) if fenced else text
+              left, right = candidate.find("{"), candidate.rfind("}")
+              if left >= 0 and right > left:
+                  candidate = candidate[left:right + 1]
+              try:
+                  payload = json.loads(candidate)
+                  if isinstance(payload, dict):
+                      return payload
+              except Exception:
+                  pass
+              return {}
+
+
+          def text_field(payload: dict, key: str, fallback: str) -> str:
+              value = payload.get(key)
+              if isinstance(value, str) and value.strip():
+                  return value.strip()
+              if value is not None:
+                  return str(value).strip() or fallback
+              return fallback
+
+
+          def main(raw: str, hearing_no: float, stars: str, prior_count: float,
+                   case_text: str, scope_id: str) -> dict:
+              payload = parse_verdict(raw)
+              if payload:
+                  charge = text_field(payload, "charge", "未定罪名")
+                  plea = text_field(payload, "plea", "态度不明")
+                  verdict = text_field(payload, "verdict", "本庭今天不想说话。")
+                  penalty = text_field(payload, "penalty", "罚猫粮一罐")
+                  clause = text_field(payload, "clause", "本庭保留追加判决的权利")
+                  precedent = text_field(payload, "precedent", "无")
+                  gavel = text_field(payload, "gavel", "退庭。")
+              else:
+                  # 模型没按 JSON 输出时降级：原文当判词，仍然完成归档
+                  charge = "未定罪名"
+                  plea = "态度不明（判词格式异常）"
+                  verdict = " ".join((raw or "").split())[:600] or "本庭今天不想说话。"
+                  penalty = "罚猫粮一罐"
+                  clause = "下次开庭请按格式说话"
+                  precedent = "无"
+                  gavel = "退庭。"
+
+              summary = " ".join(case_text.split())[:180]
+              memory_text = (
+                  "第%d号 · 累犯%s · 被告自述：%s | 案由：%s | 判读：%s | 判决：%s | 刑罚：%s | 附加条款：%s | 援引旧案：%s"
+                  % (int(hearing_no), stars, summary, charge, plea, verdict, penalty, clause, precedent)
+              )[:1500]
+
+              answer_md = "\n".join(
+                  [
+                      "## ⚖️ 第 %d 号 · 喵喵法庭开庭" % int(hearing_no),
+                      "",
+                      "**累犯等级**：%s（前科 %d 次）" % (stars, int(prior_count)),
+                      "**案由**：%s" % charge,
+                      "**被告态度**：%s" % plea,
+                      "",
+                      "**判词**：",
+                      "> %s" % verdict,
+                      "",
+                      "**刑罚**：%s" % penalty,
+                      "**附加条款**：%s" % clause,
+                      "**援引旧案**：%s" % precedent,
+                      "",
+                      "—— %s" % gavel,
+                  ]
+              )
+
+              archive_body = json.dumps(
+                  {
+                      "scope_id": scope_id,
+                      "kind": "meow-court/case",
+                      "text": memory_text,
+                      "reason": "喵喵法庭自动归档（第%d号）" % int(hearing_no),
+                  },
+                  ensure_ascii=False,
+              )
+
+              return {
+                  "memory_text": memory_text,
+                  "answer_md": answer_md,
+                  "charge": charge,
+                  "parsed": "yes" if payload else "no",
+                  "archive_body": archive_body,
+              }
+        code_language: python3
+        desc: 解析判词 JSON；解析失败时降级但仍完成归档；组装归档请求体
+        outputs:
+          memory_text:
+            children: null
+            type: string
+          answer_md:
+            children: null
+            type: string
+          charge:
+            children: null
+            type: string
+          parsed:
+            children: null
+            type: string
+          archive_body:
+            children: null
+            type: string
+        selected: false
+        title: 书记员录判词
+        type: code
+        variables:
+        - value_selector:
+          - judge
+          - text
+          variable: raw
+        - value_selector:
+          - brief
+          - hearing_no
+          variable: hearing_no
+        - value_selector:
+          - brief
+          - stars
+          variable: stars
+        - value_selector:
+          - brief
+          - prior_count
+          variable: prior_count
+        - value_selector:
+          - intake
+          - case_text
+          variable: case_text
+        - value_selector:
+          - parsed_scope
+          - scope_id
+          variable: scope_id
+      height: 90
+      id: verdict
+      position: &id009
+        x: 3040
+        y: 430
+      positionAbsolute: *id009
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          type: no-auth
+        body:
+          data:
+          - key: ''
+            type: text
+            value: '{{#verdict.archive_body#}}'
+          type: raw-text
+        default_value:
+        - key: body
+          type: string
+          value: '{"changed": false, "records": []}'
+        - key: status_code
+          type: number
+          value: 503
+        desc: 把本次判决写回 PowerContext，下一次开庭（含新会话）可再次调取
+        error_strategy: default-value
+        headers: 'Content-Type: application/json'
+        method: post
+        params: ''
+        selected: false
+        title: 判决归档
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+      height: 90
+      id: archive
+      position: &id010
+        x: 3340
+        y: 430
+      positionAbsolute: *id010
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: |2
+
+          import json
+
+
+          def main(body: str) -> dict:
+              artifact_id = ""
+              changed = "unknown"
+              try:
+                  payload = json.loads(body or "{}")
+                  changed = "yes" if payload.get("changed") else "no"
+                  records = payload.get("records") or []
+                  if records:
+                      artifact_id = str((records[0].get("artifact") or {}).get("artifact_id") or "")
+              except Exception:
+                  changed = "error"
+              if artifact_id:
+                  receipt = "> 🗄 本案已归档到 PowerContext 卷宗：`%s`（下次开庭自动翻出）" % artifact_id
+              elif changed == "error":
+                  receipt = "> ⚠️ 归档回执解析失败，但判决书仍已生成。"
+              else:
+                  receipt = "> ⚠️ 归档未确认：PowerContext 没有返回条目编号（判词仍在本条回复里，但下次开庭可能翻不到）。"
+              return {"artifact_id": artifact_id, "changed": changed, "receipt_md": receipt}
+        code_language: python3
+        desc: 把归档结果的真实条目编号回显给玩家（技术证据）
+        outputs:
+          artifact_id:
+            children: null
+            type: string
+          changed:
+            children: null
+            type: string
+          receipt_md:
+            children: null
+            type: string
+        selected: false
+        title: 归档回执
+        type: code
+        variables:
+        - value_selector:
+          - archive
+          - body
+          variable: body
+      height: 90
+      id: receipt
+      position: &id011
+        x: 3640
+        y: 430
+      positionAbsolute: *id011
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: |
+          {{#verdict.answer_md#}}
+
+          {{#receipt.receipt_md#}}
+        desc: 输出判决书与归档回执
+        selected: false
+        title: 宣判
+        type: answer
+        variables: []
+      height: 100
+      id: answer_verdict
+      position: &id012
+        x: 3940
+        y: 430
+      positionAbsolute: *id012
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

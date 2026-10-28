@@ -1,0 +1,11 @@
+{
+  "id": "a02e6d7d-04ad-46c6-a43e-64ad3802a3df",
+  "status": "completed-with-warnings",
+  "app_id": "5b6a2e1f-6e9a-4e47-93ac-ca27817e6b95",
+  "app_mode": "advanced-chat",
+  "permission_keys": [],
+  "current_dsl_version": "0.7.0",
+  "imported_dsl_version": "0.3.1",
+  "error": "",
+  "warnings": []
+}
