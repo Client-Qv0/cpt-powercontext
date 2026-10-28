@@ -144,11 +144,32 @@ WSL 每次重启 IP 都可能变，所以每次都现查一次。
 ## 5. 登录
 
 1. 浏览器打开 `http://<WSL IP>/`
-2. 输入 Dify 账号登录（本机这套演示环境的管理员是部署时创建的 `meow@example.com`，密码见本地记录；评审自己的环境用自己创建的账号）
+2. 用你的 Dify 账号登录
 3. 左侧 **工作室**（Studio）→ 应用卡片 **🐱 喵喵法庭**（CHATFLOW）
 4. 进应用后点右上 **预览**，右侧弹出对话窗
 
 > 应用已发布，`预览` 与 WebApp 里玩的是同一条工作流。
+
+### 没有账号 / 忘了密码
+
+Dify 自带两个命令行工具，不用重建数据库：
+
+```bash
+cd ~/dify/docker
+
+# 新建一个「账号 + 工作区」（首次使用、或想给评审单独开一个账号时）
+docker compose exec -T api flask create-tenant --email you@example.com --name you
+
+# 重置已有账号的密码
+docker compose exec -T api flask reset-password \
+  --email you@example.com \
+  --new-password 'NewPassw0rd!' \
+  --password-confirm 'NewPassw0rd!'
+```
+
+如果 Dify 还是全新的（连管理员都没有），直接访问 `http://<WSL IP>/install` 也能在页面上初始化管理员账号。
+
+> **为什么本文件里不写具体账号密码**：赛题提交要求「配置示例使用占位值，不提交真实 API Key、密码或其他凭据」。仓库是公开的，所以这里只给创建/重置方法——任何人在自己的环境里都能用上面两条命令得到自己的账号。本机演示环境的账号密码记录在仓库之外的本地备忘里（不在版本库中）。
 
 ---
 
