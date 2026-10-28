@@ -322,6 +322,7 @@ dify/
 │   └── meow-court.yml              # 主应用 DSL（导入这一个文件即可）
 ├── scripts/
 │   ├── seed_demo_memory.py         # 预置前科（幂等；只用标准库）
+│   ├── reset_player.py             # 清空某位玩家的前科（软删除，前科归零）
 │   └── verify_wiring.py            # 接线自检：不用 Dify/模型也能验证四个 HTTP 调用与节点逻辑
 ├── tests/
 │   ├── make_stub_variant.py        # 可选：由主 DSL 生成「LLM 换成确定性桩」的副本

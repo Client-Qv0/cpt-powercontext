@@ -157,9 +157,9 @@ WSL 每次重启 IP 都可能变，所以每次都现查一次。
 | 邮箱 | `meow@example.com` |
 | 密码 | `MeowCourt#2026` |
 
-这是本机这套演示环境的管理员账号；换一台机器、重建一个 Dify 实例后账号密码会不同，按下面两条命令自己建或改即可。
+用这个账号登录就能直接看到「喵喵法庭」。换一台机器 / 重建 Dify 实例时才需要另建账号，但**新账号是空工作区，里面没有这个游戏**——应用属于工作区，不属于账号。
 
-### 忘了密码：重置已有账号
+### 忘了密码
 
 ```bash
 cd ~/dify/docker
@@ -169,66 +169,66 @@ docker compose exec -T api flask reset-password \
   --password-confirm 'NewPassw0rd!'
 ```
 
-这条只改已有账号的密码，不依赖注册开关，改完直接用新密码登录。
+改完直接用新密码登录。
 
-### 新建的账号为什么看不到这个游戏
+---
 
-Dify 里 **「账号」和「工作区」是两层**：**应用属于工作区，不属于账号**。
+## 5.5 想重新开始（把前科清零）
 
-同一台机器上的实测对照：
+卷宗是按「玩家」存的，玩家由 Dify 的 `sys.user_id` 决定。所以有两种玩法：
 
-| 账号 | 工作区 | 工作区里的应用 |
-| --- | --- | --- |
-| `meow@example.com` | `meow-admin's Workspace` | ✅ **喵喵法庭** |
-| 新建的账号 | 一个全新的空工作区 | ❌ 什么都没有 |
+### 方式一：换一个玩家（推荐，最省事）
 
-所以「建账号」不等于「多一个能玩游戏的人」，只是多了一个**空的**工作区。登录错了账号，看到的当然是空的「工作室」。
+开一个**无痕窗口**打开 Dify（或在别的浏览器里登录），等于新的 `sys.user_id` → 全新空卷宗：
 
-**登录错账号了，切回来：**
+- 案号回到 **第 1 号**
+- 累犯 **★☆☆☆☆（前科 0 次）**
+- 判词会说「本庭第一次见你」
 
-1. 右上角头像 → **退出登录**
-2. 用 `meow@example.com` / `MeowCourt#2026` 重新登录
-
-### 什么时候才真的需要建账号
-
-| 需求 | 该怎么做 |
-| --- | --- |
-| 只想玩这个游戏 | 用 `meow@example.com`，不用建账号 |
-| 想「换个玩家 / 重新开始」 | **无痕窗口**，或调 API 换 `user`——不是换账号 |
-| 第二个人要独立使用 Dify 后台 | 建账号，然后还得在新工作区里**导入 DSL + 配模型 Key**（见下） |
-
-确实要把游戏搬进一个全新的工作区，三步：
-
-1. 用新账号登录 → 工作室 → **导入 DSL** → 选 `dify/dsl/meow-court.yml`
-2. 设置 → **模型供应商** → 安装/配置 DeepSeek → 填 API Key（模型凭据是**工作区级**的，新工作区要重新配）
-3. 打开应用 → `橘座法官` 节点 → 选模型 → 发布
-
-### 真要建账号时的命令
-
-`create-tenant` 三个选项（邮箱 / 工作区名 / 语言）**都要写全**，少一个它会交互提问，在 `-T` 或管道里会直接 `Aborted!`。密码不用你给——它**自动生成，并在最后一行打印**。Dify 默认关闭自助注册和自建工作区，两个开关必须一起带：
+用 API 玩时把 `user` 换成新名字效果一样：
 
 ```bash
-cd ~/dify/docker
-docker compose exec -T \
-  -e ALLOW_REGISTER=true \
-  -e ALLOW_CREATE_WORKSPACE=true \
-  api flask create-tenant --email grader@example.com --name grader --language zh-Hans
+curl -X POST 'http://<dify>/v1/chat-messages' \
+  -H 'Authorization: Bearer <app-API-key>' -H 'Content-Type: application/json' \
+  -d '{"inputs":{},"query":"我把猫罐头换成了减肥罐头","response_mode":"blocking","user":"new-player","conversation_id":""}'
 ```
 
-成功输出（密码只打印这一次）：
+### 方式二：清空当前玩家已有的前科
+
+不想换玩家、就想让手上这个账号从第 1 号重来：
+
+先在仓库的 `dify/` 目录下（脚本只用标准库，Windows 的 python / WSL 的 python3 都能跑）：
+
+```bash
+# Windows PowerShell
+cd F:\OceanBase\powercontext\cpt-powercontext\dify
+python scripts\reset_player.py --user <你的 player 标识>
+
+# WSL
+cd /mnt/f/OceanBase/powercontext/cpt-powercontext/dify
+python3 scripts/reset_player.py --user <你的 player 标识>
+
+# 只想看看会清掉几条（不改数据）：加 --dry-run
+```
+
+（默认连 `http://127.0.0.1:8000`；PowerContext 不在本机就加 `--base-url http://<host>:8000`。）
+
+**player 标识怎么找**：就是 Dify 的 `sys.user_id`。
+
+- Web 界面：Dify 的「日志与标注 → 运行历史」点开任意一次运行，输入里 `user_id` 就是
+- API：你调用时传的 `user`
+
+脚本用 PowerContext 的 `POST /v1/atomic-memory/lifecycle`（`state=forgotten`）把案底软删除：**数据不物理删除，但列表和计数不再包含它们**，所以下次开庭就是第 1 号。实测输出：
 
 ```
-Account and tenant created.
-Account: grader@example.com
-Password: nyS88QJ5zQMt1odJZiFwlA
+玩家 789aabe2-…（Scope scp_1t5dj…）
+当前案底：8 条
+  已清空 art_29308818…
+  …
+清空后案底：0 条 → 下次开庭是第 1 号
 ```
 
-| 报错 | 原因 | 结果 |
-| --- | --- | --- |
-| `Account registration is disabled.` | 少了 `-e ALLOW_REGISTER=true` | 什么都没建 |
-| `WorkSpaceNotAllowedCreateError` | 少了 `-e ALLOW_CREATE_WORKSPACE=true` | **账号已建好、没有工作区**，登录进去是空的 |
-
-全新实例（连管理员都没有）也可以直接访问 `http://<WSL IP>/install` 在页面上初始化。
+> 只想清掉全部玩家、彻底重来时：停掉 PowerContext，删掉 `~/pcdata/powercontext.db*`，再启动即可（Dify 侧不用动）。
 
 ## 6. 开始玩
 
@@ -304,7 +304,7 @@ Password: nyS88QJ5zQMt1odJZiFwlA
 
 | 想干什么 | 怎么做 |
 | --- | --- |
-| 换个身份重新开始 | 开一个无痕窗口（= 新的 Dify 用户），或调 API 时把 `user` 换成新名字 |
+| 换个身份重新开始 | 开一个无痕窗口（= 新的 Dify 用户），或调 API 时把 `user` 换成新名字；只想清空当前玩家的前科见第 5.5 节 |
 | 扮演更离谱的被告 | 「我不认罪，是风干的」「我要反诉你抓伤我」「我申请换法官」——法官会照着卷宗吐槽 |
 | 看它记不记得细节 | 先犯一次具体的错（比如「我把你的猫砂盆换成了狗砂盆」），之后说「查卷宗」看原文 |
 | 一次塞几条前科 | `python scripts/seed_demo_memory.py --base-url http://127.0.0.1:8000 --user <玩家名>`（写第 1–3 号，幂等） |
