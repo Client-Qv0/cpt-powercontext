@@ -1,0 +1,23 @@
+{
+  "file_count": 18,
+  "files": {
+    "pytest.ini": "6a96ba0e2d5a8296fb90f474da9d2f0173d3e41eba18965513f711104155f913",
+    "README.md": "265294cb6dd0ee50e5e27c0fa11ca47b9438c5c84cf5c7ae2f859375fcd98610",
+    "specs/api.md": "7a278eefcbbeb9a9ff39ccd3fc20841c4ac8f25a23bd7748dad61e1be0530c42",
+    "specs/catalog.md": "292c5eaf7c7e7d14f52dd6219fdd72c7205852224c2810ada720439e924bf4f0",
+    "specs/decisions/ADR-0008.md": "6f08bb7411b79d581032ef46152467587b7af9bc68787a59d11c630d864e0090",
+    "specs/reports.md": "96f0ce6a13c1ed6b4119a4822eaaec83372e318601f619bee22057a3937039cb",
+    "src/booknest/__init__.py": "7cc1198fb0d40fc95ab9377cbcd9f91606556b2dfad2733e95aaa7b111f195dd",
+    "src/booknest/api.py": "7f3a0854b6844bcd82e2d125fc778fb7e04af1af7ab9132d7cb9d54925144371",
+    "src/booknest/catalog.py": "c06e2d0e3358410ff69efeedabc38d253c516f9ee3b082fa85d29cfb9ef06fa6",
+    "src/booknest/models.py": "a9a02a9b637436780a0cbb46ec9777cec3edc70c06dc12cc6832ae05f3b5d371",
+    "src/booknest/reports.py": "e94e196c09faa3026e117be2c01e2b688f9c668485b82c92035e68b28ca21d9d",
+    "src/booknest/store.py": "60c0762e3ddf6071c0df258d1af550b9ed00154bbe0148e14defd3b4a377f6a6",
+    "tests/conftest.py": "91002c531bca713be4ef5f52ea74dc21974e3e81da9ae43efed6da57d8f8ae74",
+    "tests/test_api_contract.py": "7913ce694e09dc122124f704f6fd9d51f501cbcea7f09afec96f6da667e5a62c",
+    "tests/test_catalog_contract.py": "eaa3fe2eeaaee03979ffc98a1a8cf3b712449e90e21e466a29c4683574664d32",
+    "tests/test_catalog_filters.py": "33404f06b8bffa40b177e48ed6a5e5d5073a472136539027ff886681a15f8cb2",
+    "tests/test_pagination.py": "45cfff99a352cd124169d4da9d3024e901a737b59c49d2f281f3f0385795c9af",
+    "tests/test_reports.py": "adf4fa3ab861bdbd9e995b8407c86a3d943ccb7cccc19d384218a7db909541b2"
+  }
+}

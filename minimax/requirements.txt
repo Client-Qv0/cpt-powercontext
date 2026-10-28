@@ -1,0 +1,7 @@
+# SpecAnchor runtime dependencies (Python 3.12)
+# PowerContext 1.4.1 provides the built-in Work contract / Task outcome loop
+# and the SQLite state backend used by this submission.
+powercontext[builtin]==1.4.1
+PyMySQL==1.2.0
+httpx==0.28.1
+pytest==8.4.2

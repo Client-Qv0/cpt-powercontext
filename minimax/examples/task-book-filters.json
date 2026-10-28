@@ -1,0 +1,25 @@
+{
+  "id": "TASK-BOOK-0042",
+  "title": "书目列表支持主题与在架筛选",
+  "project": "booknest",
+  "request": "GET /books（CatalogService.list_books）需要支持按主题 topic 和在架状态 available_only 筛选。topic 精确匹配、大小写不敏感，空字符串视为不筛选；available_only 为 true 时只返回有可借复本的书；两者同时出现时取交集。筛选必须先于排序和分页执行，total 要反映筛选后的数量。未知主题返回空列表，不能报错。不能改变默认排序、分页校验、响应结构以及已有调用方的行为。",
+  "focus": [
+    "topic",
+    "available_only",
+    "list_books",
+    "筛选",
+    "分页",
+    "total"
+  ],
+  "target_specs": [
+    "BOOK-004",
+    "BOOK-005",
+    "API-001"
+  ],
+  "must_preserve": [
+    "不传筛选参数时，默认按 title 升序、相同 title 按 id 升序排序",
+    "page_size 默认 20，取值范围 1..50，非法值仍返回 400",
+    "响应结构 items/page/page_size/total 与 Book 字段保持不变",
+    "未知 topic 返回 200 与空列表，total 为 0"
+  ]
+}

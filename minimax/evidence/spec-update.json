@@ -1,0 +1,54 @@
+{
+  "task": "TASK-BOOK-0042",
+  "project": "booknest-specupdate",
+  "spec_file": "specs\\catalog.md",
+  "section": "BOOK-004",
+  "before": {
+    "spec_id": "BOOK-004",
+    "section_key": "BOOK-004",
+    "path": "specs/catalog.md",
+    "heading": "[BOOK-004] 主题与在架筛选",
+    "line_start": 35,
+    "line_end": 47,
+    "revision": 1,
+    "content_hash": "0b154f8abff6a76f067429cf4b033c74e05306402df990e79d0b3eaa1be7d14e",
+    "score": 205.2653,
+    "why": "BM25=205.265; 命中=available/availableonly/topic/total; 任务声明的目标规格; 标题命中=book/与在/主题/在架/架筛/筛选/题与",
+    "text": "## [BOOK-004] 主题与在架筛选\n\n本条目是 v3 新增需求，对应任务 `TASK-BOOK-0042`：\n\n- `topic`：主题 slug 的精确匹配，比较时先去除首尾空白并忽略大小写。\n  空字符串或未提供等同于不筛选。未知主题返回空结果，而不是错误。\n- `available_only`：为 `true` 时仅保留 `copies_available > 0` 的书；\n  为 `false` 或缺省时不做在架过滤。\n- 两个筛选参数同时出现时，结果取交集（AND 语义）。\n- 筛选必须先于排序和分页执行，`total` 必须反映筛选后的总数。\n- 新筛选不得改变 `BOOK-001` 的排序、`BOOK-002` 的分页校验与\n  `BOOK-003` 的响应结构。"
+  },
+  "after": {
+    "spec_id": "BOOK-004",
+    "section_key": "BOOK-004",
+    "path": "specs/catalog.md",
+    "heading": "[BOOK-004] 主题与在架筛选",
+    "line_start": 35,
+    "line_end": 48,
+    "revision": 2,
+    "content_hash": "166f288c9ac9eb45d0fde463536a2e089fa0e36ebd5cfdb249544a0f7e905338",
+    "score": 201.5719,
+    "why": "BM25=201.572; 命中=available/availableonly/topic/total; 任务声明的目标规格; 标题命中=book/与在/主题/在架/架筛/筛选/题与",
+    "text": "## [BOOK-004] 主题与在架筛选\n\n本条目是 v4 修订版，对应任务 `TASK-BOOK-0042`：\n\n- `topic`：主题 slug 的精确匹配。比较前必须先做 Unicode NFC 归一化，再去除\n  首尾空白并忽略大小写（casefold）。空字符串或未提供等同于不筛选。未知主题\n  返回空结果，而不是错误。\n- `available_only`：为 `true` 时仅保留 `copies_available > 0` 的书；\n  为 `false` 或缺省时不做在架过滤。布尔值也接受 `1/0`、`yes/no`、`on/off`。\n- 两个筛选参数同时出现时，结果取交集（AND 语义）。\n- 筛选必须先于排序和分页执行，`total` 必须反映筛选后的总数。\n- 新筛选不得改变 `BOOK-001` 的排序、`BOOK-002` 的分页校验与\n  `BOOK-003` 的响应结构。"
+  },
+  "changed": true,
+  "revision": {
+    "before": 1,
+    "after": 2
+  },
+  "import_changes": [
+    {
+      "spec_id": "BOOK-004",
+      "doc_path": "specs/catalog.md",
+      "section_key": "BOOK-004",
+      "old_revision": 1,
+      "new_revision": 2,
+      "old_hash": "0b154f8abff6a76f067429cf4b033c74e05306402df990e79d0b3eaa1be7d14e",
+      "new_hash": "166f288c9ac9eb45d0fde463536a2e089fa0e36ebd5cfdb249544a0f7e905338"
+    }
+  ],
+  "db_queries_before": 10,
+  "db_queries_after": 10,
+  "context_digest": {
+    "before": "73dee0c3fb1099a98656a765bb52e1b94fd46e1d3e3505ce3f3bb13a5cc382fb",
+    "after": "7cfe67a152fe0b3739b6f9ae4ad73a3b26cd6728b423fabc8c8acac4bd91c450"
+  }
+}
