@@ -184,7 +184,7 @@ def test_powercontext_state_survives_restart(settings: Settings) -> None:
                 status="partial",
                 summary="context built",
                 observations=["context built from seekdb"],
-                checks=[{"name": "baseline", "status": "failed", "details": "8 failed"}],
+                checks=[{"name": "baseline", "status": "failed", "details": "\n  8 failed  \n"}],
                 remaining_work=["apply the patch"],
             )
             assert receipt["source_ref"]["source_id"].startswith("outcome:")
@@ -194,6 +194,7 @@ def test_powercontext_state_survives_restart(settings: Settings) -> None:
     assert first["done"] == ["context built from seekdb"]
     assert first["todo"] == ["apply the patch"]
     assert first["verification"][0]["status"] == "failed"
+    assert first["verification"][0]["details"] == "8 failed"
 
     async def read_phase() -> dict:
         async with StateStore(local) as store:

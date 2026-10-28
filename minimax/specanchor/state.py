@@ -198,16 +198,20 @@ class StateStore:
         work = await self._work(project)
         source_id = f"outcome:{task_id}:{run_id}"
         task_checks = tuple(
-            TaskCheck(name=check["name"], status=check["status"], details=check.get("details"))
+            TaskCheck(
+                name=_clean_text(check.get("name"), 512),
+                status=check["status"],
+                details=_clean_text(check.get("details"), 8_000) or None,
+            )
             for check in checks
         )
         outcome = TaskOutcome(
-            objective=objective,
+            objective=_clean_text(objective, 8_000),
             status=status,
-            summary=summary,
-            observations=tuple(WorkClaim(text=text) for text in observations),
+            summary=_clean_text(summary, 8_000),
+            observations=tuple(WorkClaim(text=_clean_text(text)) for text in observations if _clean_text(text)),
             checks=task_checks,
-            remaining_work=tuple(remaining_work),
+            remaining_work=tuple(_clean_text(text) for text in remaining_work if _clean_text(text)),
         )
         try:
             receipt = await work.record_outcome(RecordTaskOutcome(source_id=source_id, outcome=outcome))
@@ -265,6 +269,15 @@ def _dedupe(items: list[str]) -> list[str]:
             seen.add(item)
             result.append(item)
     return result
+
+
+def _clean_text(value: object, limit: int = 8_000) -> str:
+    """PowerContext rejects untrimmed text; keep the informative tail of long logs."""
+
+    text = str(value or "").strip()
+    if len(text) > limit:
+        text = "..." + text[-(limit - 3) :]
+    return text
 
 
 def reset_state(settings: Settings) -> list[str]:

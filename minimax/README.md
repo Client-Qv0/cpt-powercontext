@@ -63,7 +63,7 @@ minimax/
 │   ├── render_evidence.py      # 从真实运行产物生成技术记录
 │   └── reset_demo.py           # 恢复基线并清空本地状态
 ├── evidence/                   # 运行后生成的证据（基线快照已提交）
-├── tests/                      # 上下文模块自身的 6 项验收测试
+├── tests/                      # 上下文模块自身的 12 项测试（验收 6 + 补丁安全 6）
 ├── requirements.txt
 └── README.md / DESIGN.md
 ```
@@ -370,7 +370,7 @@ python -m specanchor ingest --project booknest
 ```bash
 # 上下文模块自身（需要 seekdb 已启动）
 python -m pytest -q
-# 期望：6 passed
+# 期望：12 passed
 
 # 业务工程（apply 成功后）
 cd sample_project && python -m pytest -q
@@ -378,7 +378,8 @@ cd sample_project && python -m pytest -q
 ```
 
 模块测试覆盖：上下文必要来源、目标/回归互斥与覆盖范围、来源真实性与 SHA-256、
-SQL 检索实际参与、规格更新后使用新内容、PowerContext 跨 runtime 重启复用。
+SQL 检索实际参与、规格更新后使用新内容、PowerContext 跨 runtime 重启复用；
+补丁安全测试覆盖路径白名单、二进制拒绝、Markdown 围栏提取与 git apply/reverse。
 
 ---
 

@@ -10,7 +10,6 @@ from pathlib import Path
 
 from .errors import PatchError
 
-_FILE_HEADER = re.compile(r"^(---|\+\+\+)\s+(\S+)")
 _HUNK = re.compile(r"^@@ ")
 
 
@@ -62,42 +61,52 @@ def _looks_like_diff(text: str) -> bool:
 
 
 def validate_diff(diff: str, *, allowed_prefix: str = "src/") -> DiffInfo:
+    lines = diff.splitlines()
     paths: list[str] = []
     hunks = 0
     added = 0
     removed = 0
-    for line in diff.splitlines():
+    index = 0
+    while index < len(lines):
+        line = lines[index]
         if line.startswith("GIT binary patch") or line.startswith("Binary files "):
             raise PatchError("拒绝二进制补丁")
         if _HUNK.match(line):
             hunks += 1
+            index += 1
             continue
-        if line.startswith("+") and not line.startswith("+++"):
+        # A file header is exactly the adjacent ``---`` / ``+++`` pair.  Removed
+        # content can itself start with ``--`` inside a hunk, so checking two
+        # adjacent lines avoids misreading that content as a path.
+        if line.startswith("--- ") and index + 1 < len(lines) and lines[index + 1].startswith("+++ "):
+            for raw in (line[4:], lines[index + 1][4:]):
+                if raw.strip() == "/dev/null":
+                    continue
+                path = raw.split("\t", 1)[0].strip()
+                path = path.removeprefix("a/").removeprefix("b/")
+                if not path:
+                    raise PatchError("diff 文件头缺少路径")
+                normalised = path.replace("\\", "/")
+                if (
+                    normalised.startswith("/")
+                    or re.match(r"^[A-Za-z]:", normalised)
+                    or ".." in normalised.split("/")
+                ):
+                    raise PatchError(f"diff 使用了非法路径: {path}")
+                if not normalised.startswith(allowed_prefix):
+                    raise PatchError(
+                        f"diff 试图修改 {normalised}；本任务只允许修改 {allowed_prefix} 下的实现文件，"
+                        "不得修改测试或规格。"
+                    )
+                if normalised not in paths:
+                    paths.append(normalised)
+            index += 2
+            continue
+        if line.startswith("+"):
             added += 1
-            continue
-        if line.startswith("-") and not line.startswith("---"):
+        elif line.startswith("-"):
             removed += 1
-            continue
-        match = _FILE_HEADER.match(line)
-        if not match:
-            continue
-        raw = match.group(2)
-        if raw == "/dev/null":
-            continue
-        path = raw.removeprefix("a/").removeprefix("b/")
-        path = path.split("\t", 1)[0].strip()
-        if not path:
-            raise PatchError("diff 文件头缺少路径")
-        normalised = path.replace("\\", "/")
-        if normalised.startswith("/") or re.match(r"^[A-Za-z]:", normalised) or ".." in normalised.split("/"):
-            raise PatchError(f"diff 使用了非法路径: {path}")
-        if not normalised.startswith(allowed_prefix):
-            raise PatchError(
-                f"diff 试图修改 {normalised}；本任务只允许修改 {allowed_prefix} 下的实现文件，"
-                "不得修改测试或规格。"
-            )
-        if normalised not in paths:
-            paths.append(normalised)
+        index += 1
     if not paths:
         raise PatchError("diff 没有声明任何目标文件")
     if hunks == 0:
