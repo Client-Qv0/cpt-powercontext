@@ -1,0 +1,23 @@
+MiniMax submission review verification — 2026-10-29, Asia/Shanghai
+
+Environment: isolated Windows Python 3.13 venv installed from minimax/requirements.txt.
+Database: real seekdb v1.4.0.0, isolated port 12883, dedicated database minimax_review_20261029.
+No MiniMax API calls were made during this revision. No platform assessment submitted.
+Original historical model response, patch and result evidence have been preserved.
+
+1. From minimax/, with SPECANCHOR_DB_PORT=12883 and SPECANCHOR_DB_NAME=minimax_review_20261029:
+   python -m pytest -q
+   Result: 28 passed, 2 upstream SQLAlchemy deprecation warnings, 14.05s.
+   Includes real DB context/import checks, spec revision updates, PowerContext restart,
+   unimported spec/code/test/fixture edits and file addition/deletion rejection,
+   and damaged response/log/request/task evidence rejection.
+
+2. From minimax/:
+   python scripts/replay_evidence.py --run-dir evidence/runs/20261029-080429-TASK-BOOK-0042-run-ca941f5461
+   Result: exit 0. Temporary standalone Git repo; no API key/database required.
+   Before target: 8 failed (expected); before regression: 23 passed.
+   After target: 8 passed; after regression: 23 passed; after full suite: 32 passed.
+   This is replay of a recorded patch, not a fresh model call or PowerContext restoration.
+
+Upgrade existing installations: db init, then ingest, before building context.
+Local verification results are not official competition scores.

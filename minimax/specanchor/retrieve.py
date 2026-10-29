@@ -375,6 +375,7 @@ class ContextBuilder:
     # -- assembly ---------------------------------------------------------
     def build(self, task: Task, state: dict[str, Any], *, spec_limit: int = 6, code_limit: int = 8) -> dict[str, Any]:
         self.database.trace.entries.clear()
+        self._verify_index_freshness()
         self.query_weights = build_query_weights(task)
         specs = self.specs(task, limit=spec_limit)
         code = self.code(task, specs, limit=code_limit)
@@ -431,6 +432,22 @@ class ContextBuilder:
             ).encode("utf-8")
         ).hexdigest()
         return context
+
+    def _verify_index_freshness(self) -> None:
+        from .ingest import source_manifest
+
+        with self.database.session() as session:
+            rows = session.fetchall(
+                "SELECT path, content_hash FROM sa_source_files WHERE project=%s", (self.project,)
+            )
+        indexed = {row["path"]: row["content_hash"] for row in rows}
+        current = source_manifest(self.root)
+        if not indexed:
+            raise SpecAnchorError("缺少来源版本记录，请先 db init，再 ingest")
+        changed = sorted(path for path in indexed.keys() | current.keys()
+                         if indexed.get(path) != current.get(path))
+        if changed:
+            raise SpecAnchorError("索引已过期，请重新 ingest：" + ", ".join(changed[:10]))
 
     def _verify_sources(self, specs: list[dict[str, Any]], code: list[dict[str, Any]], tests: dict[str, list[dict[str, Any]]]) -> None:
         for item in specs:

@@ -10,32 +10,31 @@
 
 ---
 
-## 0. 复现状态说明（先读）
+## 0. 当前交付状态与复现方式
 
-本目录按“先修改前基线、再由 MiniMax 修改”的顺序复现：
+仓库中的 `sample_project/` 已包含真实 MiniMax 运行生成的修复。请先查看
+`evidence/runs/20261029-080429-TASK-BOOK-0042-run-ca941f5461/` 和修改前后日志。
+当前样例目标测试 8 passed、回归 23 passed、全量 32 passed。
 
-- 如果 `sample_project/` 的目标测试是 **8 failed / 回归 23 passed**，说明当前处于
-  **修改前基线**，尚未运行 `apply`；
-- 运行 `python -m specanchor apply`（需要 `MINIMAX_API_KEY`）后，MiniMax 会基于本模块
-  给出的上下文生成补丁、应用补丁并跑测试，目标测试应为 **8 passed**、回归 **23 passed**、
-  全量 **32 passed**；
-- 成功后在 `evidence/runs/<时间>-TASK-BOOK-0042-<id>/` 留下上下文、提示词、模型响应、
-  补丁、日志和 PowerContext 状态，并把 `sample_project` 更新为通过状态。
-
-随后运行：
+**不调用模型的复核**（无需 API Key、无需数据库，也不覆盖当前工程）：
 
 ```bash
-python scripts/verify_change.py
-python scripts/render_evidence.py
+python scripts/replay_evidence.py --run-dir evidence/runs/20261029-080429-TASK-BOOK-0042-run-ca941f5461
 ```
 
-即可生成 `evidence/test-logs/`、`evidence/verify-change.json` 与四份技术使用记录。
-如果 `sample_project` 仍是基线而 `apply` 尚未执行，本目录是“上下文模块 + 验证样例 +
-可一键执行的 MiniMax 修改流水线”，不应作为最终评审状态。
+它在临时独立 Git 仓库中解压修改前快照，验证目标失败与回归通过，应用保存的
+MiniMax 补丁，再验证目标、回归及全量测试。该过程是历史补丁复现，不能冒充新的模型调用，
+也不会恢复或伪造 PowerContext 状态。
 
-> 预期数值（本机实测，Windows 11 / Python 3.12.16）：
-> 上下文 9 条规格、8 个代码符号、8 个目标测试、14 个回归测试节点（展开 23 个用例）；
-> apply 后目标 8 passed、回归 23 passed、全量 32 passed。
+**重新调用模型演示**（需要自己配置 API Key 和 seekdb）：请复制整个 `minimax/` 目录到
+新的演示目录，在副本中按第 8 节初始化并执行 `python scripts/reset_demo.py --baseline`、
+`python -m specanchor ingest --project booknest`，再执行 `apply`。
+副本中的 `.env` 应使用独立数据库名，并将 `SPECANCHOR_STATE_DIR=./.state`、
+`SPECANCHOR_PROJECT_ROOT=./sample_project`，避免连接原工程状态。
+不要在已修复的交付工程里直接 `apply`：目标测试已通过时，程序会拒绝把它当成有效修改样本。
+
+升级已有索引时，先运行 `python -m specanchor db init` 创建新增的来源指纹表，
+再运行 `ingest`。`context` 会拒绝尚未导入的文件修改、增加或删除，提示重新导入。
 
 ---
 
@@ -46,7 +45,7 @@ minimax/
 ├── specanchor/                 # 上下文模块（CLI）
 │   ├── cli.py                  # 入口：db/ingest/context/state/apply/verify/spec-update/doctor
 │   ├── db.py                   # seekdb / OceanBase 连接、SQL 追踪
-│   ├── schema.sql              # 11 张索引表（规格、代码、测试、词项、变更审计…）
+│   ├── schema.sql              # 12 张索引表（规格、代码、测试、词项、变更审计…）
 │   ├── ingest.py               # 规格分节、Python AST 符号、pytest 用例与 covers/imports 导入
 │   ├── retrieve.py             # BM25 检索 + 可追溯性加权 + 来源校验 + 上下文组装
 │   ├── state.py                # PowerContext Work contract / Task outcome / continuity
@@ -66,7 +65,7 @@ minimax/
 │   ├── render_evidence.py      # 从真实运行产物生成技术记录
 │   └── reset_demo.py           # 恢复基线并清空本地状态
 ├── evidence/                   # 运行后生成的证据（基线快照已提交）
-├── tests/                      # 上下文模块自身的 17 项测试（验收 6 + 补丁 6 + MiniMax 客户端 5）
+├── tests/                      # 上下文模块自身的 28 项测试（原有验收与客户端测试、来源过期和证据一致性测试）
 ├── requirements.txt
 └── README.md / DESIGN.md
 ```
@@ -81,7 +80,7 @@ minimax/
 | **seekdb / OceanBase** | 存储并检索全部工程资料：规格按 `## [SPEC-ID]` 分节入库；Python 源码用 AST 拆成模块/类/函数/方法；pytest 用例记录 `covers` 与 `imports`；重建词项倒排索引。上下文构建的每一次规格/代码/测试检索都是 SQL 查询，结果直接进入上下文 | `specanchor/schema.sql`、`ingest.py`、`retrieve.py`、`evidence/seekdb-queries.md` |
 | **PowerContext** | 用原生 Work 循环保存任务：`WorkContract` 记录目标/范围/完成标准；`TaskOutcome` 记录已完成事项、验证 checks 与待办；`continuity()` 在后续独立进程里读回。`context` 输出中的“已完成/待办/验证结果”即来自这里 | `specanchor/state.py`、`evidence/powercontext-state.md` |
 
-没有把 seekdb 当成“只连一下”的装饰：`context` 的 `diagnostics.db.queries` 和 `evidence/seekdb-queries.md` 会列出本次检索实际执行的 SQL、行数与耗时。
+seekdb 实际用于检索：`context` 的 `diagnostics.db.queries` 和 `evidence/seekdb-queries.md` 会列出本次检索实际执行的 SQL、行数与耗时。
 PowerContext 也不是可选项：`apply` 成功/失败都会写 `TaskOutcome`，`context` / `state show` 会在新进程中读回。
 
 ---
@@ -399,7 +398,7 @@ python -m specanchor ingest --project booknest
 ```bash
 # 上下文模块自身（需要 seekdb 已启动）
 python -m pytest -q
-# 期望：17 passed
+# 期望：28 passed
 
 # 业务工程（apply 成功后）
 cd sample_project && python -m pytest -q
@@ -462,3 +461,12 @@ prompt 4098 / completion 453 / total 4551 tokens；因此“真实远端模型 �
 - seekdb：OceanBase，Apache 2.0，https://github.com/oceanbase/seekdb
 - MiniMax API：https://platform.minimax.cn/
 - 本作品 `sample_project` 为原创的虚构馆藏示例，不含真实个人数据或凭据。
+
+
+### 复核边界
+
+`acceptance_audit.py` 会校验已保存运行的任务、调用次数、模型信息、请求 ID、
+响应与补丁的一致性及修改前后测试记录。当前是否配置密钥仅表示能否重新调用，
+不会推翻已经存在的历史证据。这是本地证据一致性检查，不是远端身份认证或官方成绩。
+新机器若尚未初始化数据库/导入资料/创建 PowerContext 状态，完整环境自检仍会如实报告未完成；
+可先运行不依赖这些服务的 `replay_evidence.py` 核对补丁效果。

@@ -18,6 +18,7 @@ PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
+from specanchor.evidence import verify_model_evidence
 from specanchor.agent import run_pytest  # noqa: E402
 from specanchor.config import Settings  # noqa: E402
 from specanchor.db import Database  # noqa: E402
@@ -32,14 +33,15 @@ def _nodeid(item: dict[str, Any]) -> str:
     return item["path"] + "::" + "::".join(item["test_id"].split("."))
 
 
-def _latest_success() -> Path | None:
+def _latest_success(task_id: str) -> Path | None:
     candidates = sorted((EVIDENCE / "runs").glob("*"), key=lambda path: path.name)
     for path in reversed(candidates):
         result = path / "result.json"
         if not result.is_file():
             continue
         try:
-            if json.loads(result.read_text(encoding="utf-8")).get("status") == "succeeded":
+            payload = json.loads(result.read_text(encoding="utf-8"))
+            if payload.get("status") == "succeeded" and payload.get("task_id") == task_id:
                 return path
         except ValueError:
             continue
@@ -137,13 +139,15 @@ def main() -> int:
         add("上下文正确", "fail", context_detail)
 
     # 3. MiniMax participation.
-    latest = _latest_success()
-    if settings.minimax_api_key and latest is not None:
-        add("MiniMax 实际参与", "pass", f"最近成功运行 {latest.name}")
-    elif latest is not None:
-        add("MiniMax 实际参与", "pending", f"存在成功运行 {latest.name}，但当前未配置 MINIMAX_API_KEY")
+    latest = _latest_success(task.id)
+    if latest is not None:
+        try:
+            proof = verify_model_evidence(latest, task.id)
+            add("MiniMax 实际参与", "pass", f"本地调用/响应/补丁/测试记录一致：{proof['model']}；不代表远端认证")
+        except Exception as exc:
+            add("MiniMax 实际参与", "fail", str(exc))
     else:
-        add("MiniMax 实际参与", "pending", "尚无成功运行；配置 MINIMAX_API_KEY 后执行 specanchor apply")
+        add("MiniMax 实际参与", "pending", "尚无成功运行证据；重新调用模型需要密钥")
 
     # 4. PowerContext reuse.
     try:

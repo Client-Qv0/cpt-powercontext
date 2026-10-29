@@ -217,3 +217,24 @@ def test_task_file_schema_is_required() -> None:
     with pytest.raises(Exception):
         Task.load(broken)
     shutil.rmtree(broken.parent, ignore_errors=True)
+
+
+@pytest.mark.parametrize("change", ["spec", "code", "test", "fixture", "add", "delete"])
+def test_unimported_changes_rejected(database: Database, project, change) -> None:
+    name, root = project
+    import_project(database, name, root)
+    paths = {"spec": "specs/catalog.md", "code": "src/booknest/catalog.py",
+             "test": "tests/test_catalog_filters.py", "fixture": "tests/conftest.py",
+             "delete": "specs/reports.md"}
+    if change == "add":
+        (root / "src/booknest/new_module.py").write_text("value = 1\n", encoding="utf-8")
+    elif change == "delete":
+        (root / paths[change]).unlink()
+    else:
+        path = root / paths[change]
+        path.write_text(path.read_text(encoding="utf-8") + "\n# unimported change\n", encoding="utf-8")
+    from specanchor.errors import SpecAnchorError
+    with pytest.raises(SpecAnchorError, match="ingest"):
+        ContextBuilder(database, name, root).build(Task.load(TASK), empty_state())
+    import_project(database, name, root)
+    assert ContextBuilder(database, name, root).build(Task.load(TASK), empty_state())["sources"]

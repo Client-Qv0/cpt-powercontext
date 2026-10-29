@@ -20,7 +20,17 @@
 | `test-results.md` | 修改前后测试命令、退出码与代码版本 |
 | `acceptance-audit.json` | 六项验收自检（本次为 6 pass） |
 
-## 一键重新生成
+## 离线复核（推荐先执行）
+
+```bash
+python scripts/replay_evidence.py --run-dir evidence/runs/20261029-080429-TASK-BOOK-0042-run-ca941f5461
+```
+
+仅在临时副本复现保存的补丁，不调用模型、不修改交付工程。
+
+## 重新调用模型生成新证据（需要密钥）
+
+先按主 README 第 0 节创建独立演示副本，在副本中恢复基线、重新导入，再执行：
 
 ```bash
 python -m specanchor apply --task examples/task-book-filters.json

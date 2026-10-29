@@ -161,3 +161,11 @@ CREATE TABLE IF NOT EXISTS sa_agent_runs (
   PRIMARY KEY (id),
   UNIQUE KEY uq_agent_run (project, run_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Full input fingerprints detect edits/additions/deletions before context use.
+CREATE TABLE IF NOT EXISTS sa_source_files (
+  project VARCHAR(64) NOT NULL,
+  path VARCHAR(255) NOT NULL,
+  content_hash CHAR(64) NOT NULL,
+  PRIMARY KEY (project, path)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

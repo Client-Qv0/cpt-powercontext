@@ -23,6 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from .errors import SpecAnchorError
 from .db import Database, Session
 from .tokens import term_frequencies, tokenize
 
@@ -677,6 +678,7 @@ def _rebuild_links(session: Session, project: str, docs: list[SpecDocMeta], test
 
 
 _PROJECT_TABLES = (
+    "sa_source_files",
     "sa_spec_sections",
     "sa_spec_docs",
     "sa_spec_changes",
@@ -697,13 +699,29 @@ def clear_project(session: Session, project: str) -> None:
         session.execute(f"DELETE FROM {table} WHERE project=%s", (project,))
 
 
+def source_manifest(root: Path) -> dict[str, str]:
+    """Fingerprint all material inputs, including fixtures and module-level data."""
+    result = {}
+    for directory, pattern in (("specs", "*.md"), ("src", "*.py"), ("tests", "*.py")):
+        for path in sorted((root / directory).rglob(pattern)):
+            if "__pycache__" not in path.parts:
+                resolved = path.resolve()
+                if not resolved.is_relative_to(root.resolve()):
+                    raise SpecAnchorError(f"来源路径越界: {path}")
+                result[path.relative_to(root).as_posix()] = sha256_text(path.read_text(encoding="utf-8"))
+    return result
+
+
 def import_project(database: Database, project: str, root: Path, *, reset: bool = False) -> ImportResult:
     """Parse ``root`` and replace the active index generation for ``project``."""
 
     result = ImportResult(project=project, root=str(root))
+    manifest = source_manifest(root)
     docs, sections = parse_specs(root)
     symbols = parse_code(root)
     tests = parse_tests(root)
+    if source_manifest(root) != manifest:
+        raise SpecAnchorError("导入时来源发生变化，请重试 ingest")
 
     with database.session() as session:
         if reset:
@@ -718,9 +736,17 @@ def import_project(database: Database, project: str, root: Path, *, reset: bool 
             "ON DUPLICATE KEY UPDATE root_path=VALUES(root_path), updated_at=VALUES(updated_at)",
             (project, str(root), _now()),
         )
+        session.execute("DELETE FROM sa_source_files WHERE project=%s", (project,))
+        if manifest:
+            session.executemany(
+                "INSERT INTO sa_source_files (project, path, content_hash) VALUES (%s,%s,%s)",
+                [(project, path, digest) for path, digest in manifest.items()],
+            )
         _sync_specs(session, project, root, docs, sections, result)
         _sync_code(session, project, symbols, result)
         _sync_tests(session, project, tests, result)
+        if source_manifest(root) != manifest:
+            raise SpecAnchorError("导入时来源发生变化，请重试 ingest")
         result.terms = _rebuild_terms(session, project)
         _rebuild_links(session, project, docs, tests)
         session.execute(
