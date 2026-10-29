@@ -338,7 +338,7 @@ dify/
     ├── service-api-runs.json       # 5 次真实对话的原始返回
     ├── dify-runs.md                # 运行记录 + 核对要点
     ├── powercontext-calls.jsonl    # 真实 PowerContext 请求/响应
-    └── screenshots/                # 6 张 Dify 界面截图（应用、画布、日志、判决书、查卷宗）
+    └── screenshots/                # 7 张 Dify 界面截图（应用、画布、日志、判决书、查卷宗、离线兜底）
 ```
 
 `scripts/verify_wiring.py` 的定位：**接线自检**，不是第二个实现。它按 DSL 的节点顺序执行 code / http-request / if-else / answer 节点，用来在没有 Dify、没有模型额度的机器上确认「四个 PowerContext 调用真的有数据往返」（本作品的正式验证用的是真实模型，见 `evidence/`）。LLM 节点在离线模式下使用 `samples/offline-verdict.json` 里的桩数据，输出会明确标注；**正式体验与评分仍以 Dify 里运行的结果为准**。
@@ -403,7 +403,7 @@ python scripts/verify_wiring.py --user demo-grader \
 | 初始状态 / 输入 / 操作顺序 | `samples/sample-a…c`（含「如何恢复初始状态」） |
 | 预期交互与输出形式 | 同上（每节都有「预期表现」表） |
 | 实际运行结果 | `evidence/dify-runs.md` + `evidence/service-api-runs.json`（5 次真实对话原文） |
-| 截图 | `evidence/screenshots/`（6 张，见 10.5） |
+| 截图 | `evidence/screenshots/`（7 张，见 10.5） |
 | PowerContext 的作用与记录 | 6.1 四个调用 + `evidence/powercontext-calls.jsonl` + 对话里的 `art_...` 回执 |
 
 ### 10.4 4.4 按依赖补充的材料
@@ -431,10 +431,11 @@ python scripts/verify_wiring.py --user demo-grader \
 | --- | --- |
 | `01-apps.png` | 工作室里的「喵喵法庭」应用 |
 | `02-workflow.png` | Chatflow 画布（15 节点 + 两条分支） |
-| `03-logs.png` | 运行历史：5 次真实对话与状态（离线兜底为 `PARTIAL SUCCESS`） |
-| `04-log-detail.png` | 单次运行详情（离线兜底的实际对话） |
-| `05-chat-dossier.png` | 「查卷宗」分支输出 |
-| `06-chat-verdict.png` | 真实判决书 + `art_...` 归档回执 |
+| `03-logs.png` | 运行历史：4 次常规运行，全部 `SUCCESS`（`real-a` / `real-b`） |
+| `04-log-detail.png` | 第 2 号运行的对话：★★☆☆☆、援引第 1 号、归档回执 |
+| `05-chat-dossier.png` | 「查卷宗」分支输出（不调用模型） |
+| `06-chat-verdict.png` | 第 1 号的完整判决书 + `art_...` 归档回执 |
+| `07-offline-fallback.png` | 离线兜底：PowerContext 停止时的「⚠️ 卷宗柜打不开」 |
 
 ---
 

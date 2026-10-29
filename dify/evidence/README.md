@@ -19,20 +19,26 @@
 | `service-api-runs.json` | 应用发布后调用 `POST /v1/chat-messages`（`conversation_id` 传空 = 新会话） | 5 次真实请求的 query / user / conversation_id / message_id / 完整回复 |
 | `dify-runs.md` | 由 `service-api-runs.json` 整理 | 按样例顺序排好的运行记录，便于对照 `samples/` |
 | `powercontext-calls.jsonl` | `python scripts/verify_wiring.py --evidence ...` | 与 DSL 四个 HTTP 节点完全一致的请求体、状态码与响应片段（真实往返） |
-| `screenshots/` | Playwright 驱动真实 Chrome 登录 Dify 后截图 | 6 张界面截图，见下表 |
+| `screenshots/` | Playwright 驱动真实 Chrome 登录 Dify 后截图 | 7 张界面截图，见下表 |
 
 ## 界面截图
 
 | 文件 | 内容 |
 | --- | --- |
 | `screenshots/01-apps.png` | Dify 工作室里的「喵喵法庭」（CHATFLOW） |
-| `screenshots/02-workflow.png` | Chatflow 画布，15 个节点与两条分支 |
-| `screenshots/03-logs.png` | 运行历史：5 次真实对话的玩家（real-a/b/c）与状态，离线兜底那条显示 `PARTIAL SUCCESS`；其中还有一条 `1 FAILURE` 是 DeepSeek 侧瞬时断连（`Remote end closed connection`），重试后成功，未计入下面 5 条证据 |
-| `screenshots/04-log-detail.png` | 单次运行详情（含离线兜底那次的实际对话） |
-| `screenshots/05-chat-dossier.png` | 「查卷宗」分支：直接列出 PowerContext 里的两条案底 |
-| `screenshots/06-chat-verdict.png` | 预览窗口里的真实判决书：五星累犯、【通缉令】、援引第 3/4 号，末尾是 `art_...` 归档回执 |
+| `screenshots/02-workflow.png` | Chatflow 画布：15 个节点、两条分支（审判 / 查卷宗） |
+| `screenshots/03-logs.png` | 运行历史：4 次常规运行，全部绿色 `SUCCESS`，玩家 `real-a` / `real-b` |
+| `screenshots/04-log-detail.png` | 第 2 号那次运行的对话：★★☆☆☆、前科 1 次、`援引旧案：第 1 号`、末尾 `art_...` 归档回执 |
+| `screenshots/05-chat-dossier.png` | 「查卷宗」分支：直接列出 PowerContext 里的两条案底（不调用模型） |
+| `screenshots/06-chat-verdict.png` | 第 1 号那次运行的完整判决书与归档回执 |
+| `screenshots/07-offline-fallback.png` | 离线兜底：PowerContext 停止时输出「⚠️ 卷宗柜打不开」+ 排查指引 |
 
-截图里的判词均由 DeepSeek 真实生成；`06` 那张是对话框里第 5 号案件（该账号此前已有案底）。
+`03-logs.png` 是在前 4 次运行之后拍的，所以列表里只有 4 条、全是 `SUCCESS`。第 5 条
+（`07-offline-fallback.png` 里那条 `PARTIAL SUCCESS`）是**故意**在 PowerContext 停止时发起的降级测试：
+它走的是设计内的兜底分支，因此状态不是 `SUCCESS`，页面上也不会出现 `FAILURE`。
+
+截图里的判词均由 DeepSeek 真实生成，案号与星级就是当时卷宗的状态；`04` 里的「第 2 号」与 `06` 里的
+「第 1 号」正好证明第二次判决引用了第一次。
 
 ## 五次运行分别验证什么
 
