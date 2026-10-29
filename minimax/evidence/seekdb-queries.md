@@ -1,6 +1,6 @@
 # seekdb / OceanBase 使用记录
 
-- 生成时间：2026-10-28T23:02:09+08:00
+- 生成时间：2026-10-29T08:06:30+08:00
 - 引擎：seekdb/OceanBase (MySQL protocol)
 - 数据库：`specanchor`
 - 索引内容：9 条规格、8 个代码符号、22 个测试（选入本次上下文）
@@ -9,16 +9,16 @@
 
 | # | 行数 | 耗时(ms) | SQL |
 | ---: | ---: | ---: | --- |
-| 1 | 238 | 12.261 | `SELECT ref_id, term, tf FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144)` |
-| 2 | 103 | 8.17 | `SELECT term, COUNT(DISTINCT ref_id) AS df FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144) GROUP BY term` |
-| 3 | 12 | 1.107 | `SELECT id, token_count FROM sa_spec_sections WHERE project=%s AND active=1` |
-| 4 | 12 | 1.23 | `SELECT id, doc_path, section_key, spec_id, heading, level, line_start, line_end, body, revision, content_hash, token_count FROM sa_spec_sections WHERE project=%s AND active=1` |
-| 5 | 85 | 11.019 | `SELECT ref_id, term, tf FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144)` |
-| 6 | 20 | 5.491 | `SELECT term, COUNT(DISTINCT ref_id) AS df FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144) GROUP BY term` |
-| 7 | 18 | 1.171 | `SELECT id, token_count FROM sa_code_symbols WHERE project=%s AND active=1` |
-| 8 | 4 | 0.705 | `SELECT target_path FROM sa_spec_targets WHERE project=%s AND doc_path IN (%s×3)` |
-| 9 | 18 | 1.522 | `SELECT id, path, module, qualname, kind, signature, lineno, end_lineno, source, docstring, revision, content_hash FROM sa_code_symbols WHERE project=%s AND active=1` |
-| 10 | 23 | 6.838 | `SELECT id, path, test_id, qualname, kind, lineno, end_lineno, source, docstring, covers, imports, revision, content_hash FROM sa_tests WHERE project=%s AND active=1` |
+| 1 | 238 | 24.69 | `SELECT ref_id, term, tf FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144)` |
+| 2 | 103 | 19.384 | `SELECT term, COUNT(DISTINCT ref_id) AS df FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144) GROUP BY term` |
+| 3 | 12 | 6.097 | `SELECT id, token_count FROM sa_spec_sections WHERE project=%s AND active=1` |
+| 4 | 12 | 7.328 | `SELECT id, doc_path, section_key, spec_id, heading, level, line_start, line_end, body, revision, content_hash, token_count FROM sa_spec_sections WHERE project=%s AND active=1` |
+| 5 | 85 | 7.77 | `SELECT ref_id, term, tf FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144)` |
+| 6 | 20 | 5.071 | `SELECT term, COUNT(DISTINCT ref_id) AS df FROM sa_terms WHERE project=%s AND kind=%s AND term IN (%s×144) GROUP BY term` |
+| 7 | 18 | 5.852 | `SELECT id, token_count FROM sa_code_symbols WHERE project=%s AND active=1` |
+| 8 | 4 | 6.933 | `SELECT target_path FROM sa_spec_targets WHERE project=%s AND doc_path IN (%s×3)` |
+| 9 | 18 | 6.816 | `SELECT id, path, module, qualname, kind, signature, lineno, end_lineno, source, docstring, revision, content_hash FROM sa_code_symbols WHERE project=%s AND active=1` |
+| 10 | 23 | 8.284 | `SELECT id, path, test_id, qualname, kind, lineno, end_lineno, source, docstring, covers, imports, revision, content_hash FROM sa_tests WHERE project=%s AND active=1` |
 
 ## 2. 检索得到的规格（来自 `sa_spec_sections`）
 
