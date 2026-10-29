@@ -1,0 +1,43 @@
+{
+  "task": "TASK-BOOK-0042",
+  "workspace": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax",
+  "checks": [
+    {
+      "item": "能够运行",
+      "status": "pass",
+      "detail": "seekdb 5.7.25-OceanBase seekdb-v1.4.0.0 / db=specanchor; 上下文构建成功"
+    },
+    {
+      "item": "数据库实际参与",
+      "status": "pass",
+      "detail": "本次上下文执行 10 条 seekdb 查询"
+    },
+    {
+      "item": "上下文正确",
+      "status": "pass",
+      "detail": "规格 9 条 / 目标 8 / 回归 14，来源全部存在=True；规格 revision 1→2"
+    },
+    {
+      "item": "MiniMax 实际参与",
+      "status": "pass",
+      "detail": "最近成功运行 20261029-080429-TASK-BOOK-0042-run-ca941f5461"
+    },
+    {
+      "item": "状态能够复用",
+      "status": "pass",
+      "detail": "scope=scp_6vntj7v6jxecz4dssb28ees9pc，事件 2 条"
+    },
+    {
+      "item": "代码修改有效",
+      "status": "pass",
+      "detail": "目标 8 passed，回归 23 passed"
+    }
+  ],
+  "summary": {
+    "pass": 6,
+    "pending": 0,
+    "fail": 0
+  },
+  "latest_success_run": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\runs\\20261029-080429-TASK-BOOK-0042-run-ca941f5461",
+  "minimax_key_configured": true
+}

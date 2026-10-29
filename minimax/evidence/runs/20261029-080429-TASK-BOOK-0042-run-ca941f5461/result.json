@@ -1,0 +1,149 @@
+{
+  "status": "succeeded",
+  "run_id": "run-ca941f5461",
+  "run_dir": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\runs\\20261029-080429-TASK-BOOK-0042-run-ca941f5461",
+  "task_id": "TASK-BOOK-0042",
+  "attempts": 1,
+  "diff_path": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\patches\\TASK-BOOK-0042.patch",
+  "summary": "MiniMax 完成代码修改，目标测试、回归测试与全量测试全部通过",
+  "checks": [
+    {
+      "name": "baseline.target.fails",
+      "status": "passed",
+      "details": "8 failed before change"
+    },
+    {
+      "name": "target.tests",
+      "status": "passed",
+      "details": "8 passed after change"
+    },
+    {
+      "name": "regression.tests",
+      "status": "passed",
+      "details": "23 passed"
+    },
+    {
+      "name": "full.suite",
+      "status": "passed",
+      "details": "32 passed"
+    }
+  ],
+  "test_runs": {
+    "baseline_target": {
+      "name": "baseline.target",
+      "nodeids": [
+        "tests/test_catalog_filters.py::test_api_available_only_is_forwarded",
+        "tests/test_catalog_filters.py::test_api_topic_and_available_pagination",
+        "tests/test_catalog_filters.py::test_available_only_excludes_checked_out_books",
+        "tests/test_catalog_filters.py::test_filters_apply_before_pagination",
+        "tests/test_catalog_filters.py::test_topic_and_available_filters_combine_with_and",
+        "tests/test_catalog_filters.py::test_topic_filter_is_case_insensitive",
+        "tests/test_catalog_filters.py::test_topic_filter_returns_only_matching_topic",
+        "tests/test_catalog_filters.py::test_unknown_topic_returns_empty_page"
+      ],
+      "exit_code": 1,
+      "passed": 0,
+      "failed": 8,
+      "errors": 0,
+      "duration_s": 1.116,
+      "log": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\runs\\20261029-080429-TASK-BOOK-0042-run-ca941f5461\\baseline-target.log"
+    },
+    "baseline_regression": {
+      "name": "baseline.regression",
+      "nodeids": [
+        "tests/test_api_contract.py::test_boolean_spellings_are_accepted",
+        "tests/test_api_contract.py::test_empty_query_returns_first_page",
+        "tests/test_api_contract.py::test_invalid_available_only_returns_400",
+        "tests/test_api_contract.py::test_invalid_paging_returns_400",
+        "tests/test_catalog_contract.py::test_api_payload_shape_is_unchanged",
+        "tests/test_catalog_contract.py::test_default_listing_keeps_title_then_id_order",
+        "tests/test_catalog_contract.py::test_default_listing_returns_every_seed_book",
+        "tests/test_catalog_contract.py::test_page_shape_is_unchanged",
+        "tests/test_pagination.py::test_default_page_size_is_twenty",
+        "tests/test_pagination.py::test_invalid_page_raises_value_error",
+        "tests/test_pagination.py::test_invalid_page_size_raises_value_error",
+        "tests/test_pagination.py::test_maximum_page_size_is_allowed",
+        "tests/test_pagination.py::test_page_beyond_the_end_returns_empty_items",
+        "tests/test_pagination.py::test_second_page_starts_after_the_first_page"
+      ],
+      "exit_code": 0,
+      "passed": 23,
+      "failed": 0,
+      "errors": 0,
+      "duration_s": 1.006,
+      "log": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\runs\\20261029-080429-TASK-BOOK-0042-run-ca941f5461\\baseline-regression.log"
+    },
+    "target": {
+      "name": "attempt-1.target",
+      "nodeids": [
+        "tests/test_catalog_filters.py::test_api_available_only_is_forwarded",
+        "tests/test_catalog_filters.py::test_api_topic_and_available_pagination",
+        "tests/test_catalog_filters.py::test_available_only_excludes_checked_out_books",
+        "tests/test_catalog_filters.py::test_filters_apply_before_pagination",
+        "tests/test_catalog_filters.py::test_topic_and_available_filters_combine_with_and",
+        "tests/test_catalog_filters.py::test_topic_filter_is_case_insensitive",
+        "tests/test_catalog_filters.py::test_topic_filter_returns_only_matching_topic",
+        "tests/test_catalog_filters.py::test_unknown_topic_returns_empty_page"
+      ],
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "duration_s": 0.903,
+      "log": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\runs\\20261029-080429-TASK-BOOK-0042-run-ca941f5461\\attempt-1-target.log"
+    },
+    "regression": {
+      "name": "attempt-1.regression",
+      "nodeids": [
+        "tests/test_api_contract.py::test_boolean_spellings_are_accepted",
+        "tests/test_api_contract.py::test_empty_query_returns_first_page",
+        "tests/test_api_contract.py::test_invalid_available_only_returns_400",
+        "tests/test_api_contract.py::test_invalid_paging_returns_400",
+        "tests/test_catalog_contract.py::test_api_payload_shape_is_unchanged",
+        "tests/test_catalog_contract.py::test_default_listing_keeps_title_then_id_order",
+        "tests/test_catalog_contract.py::test_default_listing_returns_every_seed_book",
+        "tests/test_catalog_contract.py::test_page_shape_is_unchanged",
+        "tests/test_pagination.py::test_default_page_size_is_twenty",
+        "tests/test_pagination.py::test_invalid_page_raises_value_error",
+        "tests/test_pagination.py::test_invalid_page_size_raises_value_error",
+        "tests/test_pagination.py::test_maximum_page_size_is_allowed",
+        "tests/test_pagination.py::test_page_beyond_the_end_returns_empty_items",
+        "tests/test_pagination.py::test_second_page_starts_after_the_first_page"
+      ],
+      "exit_code": 0,
+      "passed": 23,
+      "failed": 0,
+      "errors": 0,
+      "duration_s": 0.957,
+      "log": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\runs\\20261029-080429-TASK-BOOK-0042-run-ca941f5461\\attempt-1-regression.log"
+    },
+    "full_suite": {
+      "name": "full.suite",
+      "nodeids": [],
+      "exit_code": 0,
+      "passed": 32,
+      "failed": 0,
+      "errors": 0,
+      "duration_s": 1.089,
+      "log": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\runs\\20261029-080429-TASK-BOOK-0042-run-ca941f5461\\full-suite.log"
+    }
+  },
+  "minimax": {
+    "model": "MiniMax-M3.1-Flash",
+    "calls": 1,
+    "attempts": [
+      {
+        "attempt": 1,
+        "diff": {
+          "paths": [
+            "src/booknest/catalog.py"
+          ],
+          "hunks": 1,
+          "added_lines": 16,
+          "removed_lines": 1
+        }
+      }
+    ]
+  },
+  "error": ""
+}

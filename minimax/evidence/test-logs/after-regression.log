@@ -1,0 +1,9 @@
+# 修改后：回归测试（预期通过）
+# timestamp: 2026-10-29T08:04:57+08:00
+# command: F:\OceanBase\_pcenv\Scripts\python.exe -m pytest -q -p no:cacheprovider tests/test_api_contract.py::test_boolean_spellings_are_accepted tests/test_api_contract.py::test_empty_query_returns_first_page tests/test_api_contract.py::test_invalid_available_only_returns_400 tests/test_api_contract.py::test_invalid_paging_returns_400 tests/test_catalog_contract.py::test_api_payload_shape_is_unchanged tests/test_catalog_contract.py::test_default_listing_keeps_title_then_id_order tests/test_catalog_contract.py::test_default_listing_returns_every_seed_book tests/test_catalog_contract.py::test_page_shape_is_unchanged tests/test_pagination.py::test_default_page_size_is_twenty tests/test_pagination.py::test_invalid_page_raises_value_error tests/test_pagination.py::test_invalid_page_size_raises_value_error tests/test_pagination.py::test_maximum_page_size_is_allowed tests/test_pagination.py::test_page_beyond_the_end_returns_empty_items tests/test_pagination.py::test_second_page_starts_after_the_first_page
+# cwd: F:\OceanBase\powercontext\cpt-powercontext\minimax\.state\verify\run-c00ea63e\after
+# code_version: 49eb03d3e9b3502736456c4209568e7e0ad02c4f7fd13a6ffaa2987bc82deb87
+# exit_code: 0
+# passed: 23  failed: 0  errors: 0
+.......................                                                  [100%]
+23 passed in 0.06s

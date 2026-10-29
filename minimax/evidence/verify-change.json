@@ -1,0 +1,61 @@
+{
+  "task": "TASK-BOOK-0042",
+  "checked_at": "2026-10-29T08:04:58+08:00",
+  "code_version": {
+    "baseline": "abb9aa55e122043f1d171080f12d131aecd9da2e5ddd2576871c7324d1939666",
+    "after": "49eb03d3e9b3502736456c4209568e7e0ad02c4f7fd13a6ffaa2987bc82deb87",
+    "git_head": "f6b3f77a451a9a5a5836796badadf4c0210780ba"
+  },
+  "target_test_count": 8,
+  "regression_test_count": 14,
+  "checks": [
+    {
+      "name": "before.target",
+      "exit_code": 1,
+      "passed": 0,
+      "failed": 8,
+      "errors": 0,
+      "expectation": "exit=1 且存在真实断言失败",
+      "ok": true
+    },
+    {
+      "name": "before.regression",
+      "exit_code": 0,
+      "passed": 23,
+      "failed": 0,
+      "errors": 0,
+      "expectation": "exit=0",
+      "ok": true
+    },
+    {
+      "name": "after.target",
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "expectation": "exit=0",
+      "ok": true
+    },
+    {
+      "name": "after.regression",
+      "exit_code": 0,
+      "passed": 23,
+      "failed": 0,
+      "errors": 0,
+      "expectation": "exit=0",
+      "ok": true
+    },
+    {
+      "name": "after.full",
+      "exit_code": 0,
+      "passed": 32,
+      "failed": 0,
+      "errors": 0,
+      "expectation": "exit=0",
+      "ok": true
+    }
+  ],
+  "ok": true,
+  "sample_root": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\sample_project",
+  "baseline_zip": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\evidence\\baseline\\sample_project.zip"
+}

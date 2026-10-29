@@ -37,7 +37,22 @@ class CatalogService:
 
         self._validate_paging(page, page_size)
 
-        ordered = sorted(self._books, key=lambda book: (book.title, book.id))
+        filtered = self._books
+        if topic is not None:
+            normalized_topic = topic.strip().casefold()
+            if normalized_topic:
+                filtered = tuple(
+                    book
+                    for book in filtered
+                    if book.topic.strip().casefold() == normalized_topic
+                )
+
+        if available_only:
+            filtered = tuple(
+                book for book in filtered if book.copies_available > 0
+            )
+
+        ordered = sorted(filtered, key=lambda book: (book.title, book.id))
         start = (page - 1) * page_size
         return BookPage(
             items=tuple(ordered[start : start + page_size]),

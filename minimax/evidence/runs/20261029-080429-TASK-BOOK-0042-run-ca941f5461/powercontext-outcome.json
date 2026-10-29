@@ -1,0 +1,10 @@
+{
+  "scope_id": "scp_6vntj7v6jxecz4dssb28ees9pc",
+  "source_ref": {
+    "source_type": "content",
+    "source_id": "outcome:TASK-BOOK-0042:run-ca941f5461"
+  },
+  "position": 2,
+  "digest": "sha256:ff0dcad134398f3d791f11d70f3000fc60646b107985967cf86b04d9ef4c1ce3",
+  "recorded_at": "2026-10-29T08:04:39+08:00"
+}

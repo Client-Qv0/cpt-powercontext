@@ -1,0 +1,9 @@
+# 修改后：全量测试（预期通过）
+# timestamp: 2026-10-29T08:04:58+08:00
+# command: F:\OceanBase\_pcenv\Scripts\python.exe -m pytest -q -p no:cacheprovider
+# cwd: F:\OceanBase\powercontext\cpt-powercontext\minimax\.state\verify\run-c00ea63e\after
+# code_version: 49eb03d3e9b3502736456c4209568e7e0ad02c4f7fd13a6ffaa2987bc82deb87
+# exit_code: 0
+# passed: 32  failed: 0  errors: 0
+................................                                         [100%]
+32 passed in 0.06s

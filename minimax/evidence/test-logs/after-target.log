@@ -1,0 +1,9 @@
+# 修改后：目标功能测试（预期通过）
+# timestamp: 2026-10-29T08:04:56+08:00
+# command: F:\OceanBase\_pcenv\Scripts\python.exe -m pytest -q -p no:cacheprovider tests/test_catalog_filters.py::test_api_available_only_is_forwarded tests/test_catalog_filters.py::test_api_topic_and_available_pagination tests/test_catalog_filters.py::test_available_only_excludes_checked_out_books tests/test_catalog_filters.py::test_filters_apply_before_pagination tests/test_catalog_filters.py::test_topic_and_available_filters_combine_with_and tests/test_catalog_filters.py::test_topic_filter_is_case_insensitive tests/test_catalog_filters.py::test_topic_filter_returns_only_matching_topic tests/test_catalog_filters.py::test_unknown_topic_returns_empty_page
+# cwd: F:\OceanBase\powercontext\cpt-powercontext\minimax\.state\verify\run-c00ea63e\after
+# code_version: 49eb03d3e9b3502736456c4209568e7e0ad02c4f7fd13a6ffaa2987bc82deb87
+# exit_code: 0
+# passed: 8  failed: 0  errors: 0
+........                                                                 [100%]
+8 passed in 0.03s

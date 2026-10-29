@@ -1,0 +1,305 @@
+{
+  "provider": "PowerContext 1.4.1 builtin runtime (Work contract / Task outcome)",
+  "scope_id": "scp_6vntj7v6jxecz4dssb28ees9pc",
+  "task_id": "TASK-BOOK-0042",
+  "storage": "F:\\OceanBase\\powercontext\\cpt-powercontext\\minimax\\.state\\powercontext.db",
+  "contract": {
+    "position": 1,
+    "kind": "work-contract",
+    "status": "delegated",
+    "summary": "书目列表支持主题与在架筛选：GET /books（CatalogService.list_books）需要支持按主题 topic 和在架状态 available_only 筛选。topic 精确匹配、大小写不敏感，空字符串视为不筛选；available_only 为 true 时只返回有可借复本的书；两者同时出现时取交集。筛选必须先于排序和分页执行，total 要反映筛选后的数量。未知主题返回空列表，不能报错。不能改变默认排序、分页校验、响应结构以及已有调用方的行为。",
+    "source_ref": {
+      "source_type": "content",
+      "source_id": "contract:TASK-BOOK-0042"
+    },
+    "captured_at": null,
+    "record": {
+      "schema": "powercontext.work-contract.v1",
+      "trust": "untrusted_input",
+      "objective": "书目列表支持主题与在架筛选：GET /books（CatalogService.list_books）需要支持按主题 topic 和在架状态 available_only 筛选。topic 精确匹配、大小写不敏感，空字符串视为不筛选；available_only 为 true 时只返回有可借复本的书；两者同时出现时取交集。筛选必须先于排序和分页执行，total 要反映筛选后的数量。未知主题返回空列表，不能报错。不能改变默认排序、分页校验、响应结构以及已有调用方的行为。",
+      "facts": [
+        {
+          "text": "任务状态由 SpecAnchor 通过 PowerContext Work contract 保存。",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "text": "上下文中的规格、代码与测试来源均来自 seekdb 索引且已校验存在。",
+          "basis": "declared",
+          "evidence": []
+        }
+      ],
+      "in_scope": [
+        "src/booknest/api.py",
+        "src/booknest/catalog.py"
+      ],
+      "exclusions": [],
+      "completion_criteria": [
+        "目标功能测试在修改前失败、修改后全部通过",
+        "回归测试在修改前后均通过",
+        "仅修改 src/ 下的实现文件"
+      ],
+      "authorization_notes": [
+        "仅允许修改 src/ 下的实现文件，不得修改测试与规格。"
+      ],
+      "open_questions": []
+    }
+  },
+  "latest_outcome": {
+    "position": 2,
+    "kind": "task-outcome",
+    "status": "succeeded",
+    "summary": "MiniMax 完成代码修改，目标测试、回归测试与全量测试全部通过",
+    "source_ref": {
+      "source_type": "content",
+      "source_id": "outcome:TASK-BOOK-0042:run-ca941f5461"
+    },
+    "captured_at": null,
+    "record": {
+      "schema": "powercontext.task-outcome.v1",
+      "trust": "untrusted_observation",
+      "objective": "书目列表支持主题与在架筛选：GET /books（CatalogService.list_books）需要支持按主题 topic 和在架状态 available_only 筛选。topic 精确匹配、大小写不敏感，空字符串视为不筛选；available_only 为 true 时只返回有可借复本的书；两者同时出现时取交集。筛选必须先于排序和分页执行，total 要反映筛选后的数量。未知主题返回空列表，不能报错。不能改变默认排序、分页校验、响应结构以及已有调用方的行为。",
+      "status": "succeeded",
+      "summary": "MiniMax 完成代码修改，目标测试、回归测试与全量测试全部通过",
+      "handoff_receipt_ref": null,
+      "observations": [
+        {
+          "text": "上下文来自 seekdb：9 条规格、8 个代码符号、8 个目标测试、14 个回归测试",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "text": "修改前目标测试失败：8 failed, 0 passed",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "text": "模型 MiniMax-M3.1-Flash 第 1 次尝试返回补丁 ['src/booknest/catalog.py']",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "text": "修改后目标测试通过：8 passed",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "text": "回归测试通过：23 passed",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "text": "全量测试通过：32 passed",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "text": "已重新导入 seekdb 索引，后续 context 使用修改后的代码",
+          "basis": "declared",
+          "evidence": []
+        }
+      ],
+      "checks": [
+        {
+          "name": "baseline.target.fails",
+          "status": "passed",
+          "details": "8 failed before change",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "name": "target.tests",
+          "status": "passed",
+          "details": "8 passed after change",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "name": "regression.tests",
+          "status": "passed",
+          "details": "23 passed",
+          "basis": "declared",
+          "evidence": []
+        },
+        {
+          "name": "full.suite",
+          "status": "passed",
+          "details": "32 passed",
+          "basis": "declared",
+          "evidence": []
+        }
+      ],
+      "produced_artifacts": [],
+      "remaining_work": []
+    }
+  },
+  "done": [
+    "上下文来自 seekdb：9 条规格、8 个代码符号、8 个目标测试、14 个回归测试",
+    "修改前目标测试失败：8 failed, 0 passed",
+    "模型 MiniMax-M3.1-Flash 第 1 次尝试返回补丁 ['src/booknest/catalog.py']",
+    "修改后目标测试通过：8 passed",
+    "回归测试通过：23 passed",
+    "全量测试通过：32 passed",
+    "已重新导入 seekdb 索引，后续 context 使用修改后的代码",
+    "验证通过: baseline.target.fails",
+    "验证通过: target.tests",
+    "验证通过: regression.tests",
+    "验证通过: full.suite"
+  ],
+  "todo": [],
+  "verification": [
+    {
+      "name": "baseline.target.fails",
+      "status": "passed",
+      "details": "8 failed before change"
+    },
+    {
+      "name": "target.tests",
+      "status": "passed",
+      "details": "8 passed after change"
+    },
+    {
+      "name": "regression.tests",
+      "status": "passed",
+      "details": "23 passed"
+    },
+    {
+      "name": "full.suite",
+      "status": "passed",
+      "details": "32 passed"
+    }
+  ],
+  "events": [
+    {
+      "position": 1,
+      "kind": "work-contract",
+      "status": "delegated",
+      "summary": "书目列表支持主题与在架筛选：GET /books（CatalogService.list_books）需要支持按主题 topic 和在架状态 available_only 筛选。topic 精确匹配、大小写不敏感，空字符串视为不筛选；available_only 为 true 时只返回有可借复本的书；两者同时出现时取交集。筛选必须先于排序和分页执行，total 要反映筛选后的数量。未知主题返回空列表，不能报错。不能改变默认排序、分页校验、响应结构以及已有调用方的行为。",
+      "source_ref": {
+        "source_type": "content",
+        "source_id": "contract:TASK-BOOK-0042"
+      },
+      "captured_at": null,
+      "record": {
+        "schema": "powercontext.work-contract.v1",
+        "trust": "untrusted_input",
+        "objective": "书目列表支持主题与在架筛选：GET /books（CatalogService.list_books）需要支持按主题 topic 和在架状态 available_only 筛选。topic 精确匹配、大小写不敏感，空字符串视为不筛选；available_only 为 true 时只返回有可借复本的书；两者同时出现时取交集。筛选必须先于排序和分页执行，total 要反映筛选后的数量。未知主题返回空列表，不能报错。不能改变默认排序、分页校验、响应结构以及已有调用方的行为。",
+        "facts": [
+          {
+            "text": "任务状态由 SpecAnchor 通过 PowerContext Work contract 保存。",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "text": "上下文中的规格、代码与测试来源均来自 seekdb 索引且已校验存在。",
+            "basis": "declared",
+            "evidence": []
+          }
+        ],
+        "in_scope": [
+          "src/booknest/api.py",
+          "src/booknest/catalog.py"
+        ],
+        "exclusions": [],
+        "completion_criteria": [
+          "目标功能测试在修改前失败、修改后全部通过",
+          "回归测试在修改前后均通过",
+          "仅修改 src/ 下的实现文件"
+        ],
+        "authorization_notes": [
+          "仅允许修改 src/ 下的实现文件，不得修改测试与规格。"
+        ],
+        "open_questions": []
+      }
+    },
+    {
+      "position": 2,
+      "kind": "task-outcome",
+      "status": "succeeded",
+      "summary": "MiniMax 完成代码修改，目标测试、回归测试与全量测试全部通过",
+      "source_ref": {
+        "source_type": "content",
+        "source_id": "outcome:TASK-BOOK-0042:run-ca941f5461"
+      },
+      "captured_at": null,
+      "record": {
+        "schema": "powercontext.task-outcome.v1",
+        "trust": "untrusted_observation",
+        "objective": "书目列表支持主题与在架筛选：GET /books（CatalogService.list_books）需要支持按主题 topic 和在架状态 available_only 筛选。topic 精确匹配、大小写不敏感，空字符串视为不筛选；available_only 为 true 时只返回有可借复本的书；两者同时出现时取交集。筛选必须先于排序和分页执行，total 要反映筛选后的数量。未知主题返回空列表，不能报错。不能改变默认排序、分页校验、响应结构以及已有调用方的行为。",
+        "status": "succeeded",
+        "summary": "MiniMax 完成代码修改，目标测试、回归测试与全量测试全部通过",
+        "handoff_receipt_ref": null,
+        "observations": [
+          {
+            "text": "上下文来自 seekdb：9 条规格、8 个代码符号、8 个目标测试、14 个回归测试",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "text": "修改前目标测试失败：8 failed, 0 passed",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "text": "模型 MiniMax-M3.1-Flash 第 1 次尝试返回补丁 ['src/booknest/catalog.py']",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "text": "修改后目标测试通过：8 passed",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "text": "回归测试通过：23 passed",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "text": "全量测试通过：32 passed",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "text": "已重新导入 seekdb 索引，后续 context 使用修改后的代码",
+            "basis": "declared",
+            "evidence": []
+          }
+        ],
+        "checks": [
+          {
+            "name": "baseline.target.fails",
+            "status": "passed",
+            "details": "8 failed before change",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "name": "target.tests",
+            "status": "passed",
+            "details": "8 passed after change",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "name": "regression.tests",
+            "status": "passed",
+            "details": "23 passed",
+            "basis": "declared",
+            "evidence": []
+          },
+          {
+            "name": "full.suite",
+            "status": "passed",
+            "details": "32 passed",
+            "basis": "declared",
+            "evidence": []
+          }
+        ],
+        "produced_artifacts": [],
+        "remaining_work": []
+      }
+    }
+  ],
+  "event_count": 2
+}

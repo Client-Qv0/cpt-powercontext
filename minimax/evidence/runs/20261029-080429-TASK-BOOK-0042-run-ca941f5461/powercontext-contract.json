@@ -1,0 +1,10 @@
+{
+  "created": true,
+  "scope_id": "scp_6vntj7v6jxecz4dssb28ees9pc",
+  "source_ref": {
+    "source_type": "content",
+    "source_id": "contract:TASK-BOOK-0042"
+  },
+  "position": 1,
+  "digest": "sha256:a2066ce26aec106eb95d74c4aad025ee2df302e32de3df14e4fc3d70c26fd610"
+}
