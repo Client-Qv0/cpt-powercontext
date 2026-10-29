@@ -1,0 +1,24 @@
+{
+  "documents": [
+    {"id":"gpu","text":"WebGPU accelerates browser machine learning inference using the local graphics processor. It executes tensor operations on the user's device without a cloud inference API."},
+    {"id":"wasm","text":"WebAssembly, or WASM, provides a CPU fallback when a browser does not support WebGPU or GPU initialization fails. Local embedding inference can still run on the CPU."},
+    {"id":"quant","text":"INT8 quantization stores model weights as eight bit integers instead of 32 bit floating point numbers. This reduces model download size. Retrieval quality should be measured using Recall and nDCG."},
+    {"id":"hybrid","text":"seekdb hybrid search combines full text keyword matching and semantic vector similarity in the database. Reciprocal rank fusion, RRF, ranks candidates from both retrieval methods."},
+    {"id":"refresh","text":"After importing documents into seekdb, refresh the vector index before searching the new documents. Batch writes followed by a single index refresh reduce repeated refresh overhead."},
+    {"id":"batch","text":"Embedding batch processing encodes multiple documents in one inference call. Reusing the loaded model avoids initialization overhead on subsequent queries. Warm and cold timings must be measured separately."},
+    {"id":"identity","text":"Each knowledge base binds a model revision, precision, pooling strategy and dimension. Switching knowledge bases must not mix incompatible embedding vectors. Stable document IDs make incremental upserts idempotent."},
+    {"id":"pool","text":"Mean pooling combines token representations into a sentence embedding. L2 normalization scales the embedding to unit length. MiniLM sentence embeddings have 384 dimensions."},
+    {"id":"bread","text":"Sourdough bread is made from flour, water, salt and an active starter. A long fermentation improves flavor and texture. Bake in a hot oven."},
+    {"id":"garden","text":"Tomato plants need sunlight, regular watering and well drained soil. Mulch helps retain moisture. Harvest ripe tomatoes gently from the vine."},
+    {"id":"train","text":"High speed trains connect cities on a railway network. Passengers should arrive at the station early and check the platform number printed on the departure board."},
+    {"id":"stars","text":"Astronomers observe distant stars with telescopes. Spectroscopy reveals chemical composition. The light from distant galaxies travels through space for millions of years."}
+  ],
+  "queries": [
+    {"text":"How does WebGPU accelerate inference?","relevant":["gpu"]},
+    {"text":"What CPU fallback works without WebGPU?","relevant":["wasm"]},
+    {"text":"How does INT8 quantization reduce model size?","relevant":["quant"]},
+    {"text":"How does seekdb combine keyword and semantic search with RRF?","relevant":["hybrid"]},
+    {"text":"When should the vector index refresh after importing documents?","relevant":["refresh"]},
+    {"text":"Why reuse the model and batch multiple documents?","relevant":["batch"]}
+  ]
+}

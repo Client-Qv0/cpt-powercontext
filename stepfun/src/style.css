@@ -1,0 +1,258 @@
+:root {
+  font-family: Inter, "Segoe UI", "Microsoft YaHei", sans-serif;
+  color: #202c29;
+  background: #f2f4ef;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+header {
+  height: 96px;
+  border-bottom: 1px solid #dce1d7;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 5vw;
+  background: #f8faf5;
+}
+header small {
+  display: block;
+  margin-top: 5px;
+  color: #758078;
+  font-size: 12px;
+}
+.logo {
+  font-size: 32px;
+  font-weight: 800;
+  color: #28634a;
+}
+.logo span {
+  color: #a4bd70;
+}
+.pill {
+  margin-left: auto;
+  border: 1px solid #cad7bd;
+  border-radius: 30px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #3a624b;
+}
+main {
+  max-width: 1440px;
+  margin: auto;
+  padding: 44px 5vw;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #617e4c;
+}
+h1 {
+  font-size: clamp(30px, 3.2vw, 46px);
+  font-weight: 600;
+  letter-spacing: -1px;
+  line-height: 1.4;
+  margin: 18px 0;
+}
+h1 span {
+  color: #719062;
+}
+.intro > p:last-child {
+  font-size: 14px;
+  color: #6e7970;
+  margin-bottom: 36px;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 24px;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e0e5db;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 15px #263a2110;
+}
+h2 {
+  font-size: 13px;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin: 0 0 22px;
+  color: #536c4c;
+}
+label {
+  display: block;
+  color: #6d786d;
+  font-size: 12px;
+  margin: 14px 0;
+}
+input,
+select,
+textarea {
+  font: inherit;
+  color: #293c30;
+  background: #fbfcf9;
+  border: 1px solid #d7dfd0;
+  border-radius: 7px;
+  padding: 11px;
+  width: 100%;
+  margin-top: 7px;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #a3bf87;
+}
+textarea {
+  resize: vertical;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.check input {
+  width: auto;
+  margin: 0;
+}
+.drop {
+  border: 1px dashed #99ad8b;
+  border-radius: 7px;
+  padding: 14px;
+  text-align: center;
+}
+.drop input {
+  font-size: 11px;
+  border: 0;
+}
+button {
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid #2e603c;
+  border-radius: 7px;
+  background: #2e603c;
+  color: #fff;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+aside button {
+  width: 100%;
+  margin-top: 7px;
+}
+.secondary {
+  background: transparent;
+  color: #49653e;
+  border-color: #c6d4be;
+}
+.muted,
+footer {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #8b9387;
+}
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.row h2 {
+  margin: 0;
+  flex: 1;
+}
+.row select {
+  margin: 10px 0;
+  flex: 1;
+}
+.search form > input {
+  font-size: 14px;
+  padding: 17px;
+  margin: 0;
+}
+.empty {
+  text-align: center;
+  border: 1px dashed #ccd6c3;
+  border-radius: 14px;
+  padding: 54px 20px;
+  margin-bottom: 24px;
+  color: #8d9b82;
+}
+.empty span {
+  font-size: 55px;
+  color: #a6b69a;
+}
+.empty h3 {
+  font-size: 17px;
+  font-weight: 500;
+  color: #627556;
+}
+.empty p {
+  font-size: 12px;
+  line-height: 2;
+}
+.hit small {
+  font-size: 11px;
+  color: #638650;
+}
+.hit p {
+  white-space: pre-wrap;
+  line-height: 1.9;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+#status {
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+progress {
+  width: 100%;
+  height: 5px;
+  accent-color: #648953;
+  margin-top: 20px;
+}
+.error {
+  color: #ae443c;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+footer {
+  margin-top: 30px;
+  text-align: center;
+}
+#report {
+  font-size: 11px;
+  line-height: 1.9;
+  overflow: auto;
+}
+pre {
+  max-height: 250px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 850px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  header {
+    padding: 0 20px;
+  }
+  .pill {
+    max-width: 45%;
+    font-size: 10px;
+  }
+  main {
+    padding: 28px 20px;
+  }
+  .row {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,13 @@
+
+> stepfun-local-knowledge@1.0.0 test:db
+> node --test test/database.integration.mjs
+
+✔ real seekdb: increment, refresh, idempotency, isolation, restart, precision guard (2184.9809ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2311.504

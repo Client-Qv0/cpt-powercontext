@@ -1,0 +1,1577 @@
+{
+  "timestamp": "2026-10-29T06:24:02.017Z",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+  "runtime": "Transformers.js 4.3.2",
+  "hardwareConcurrency": 24,
+  "model": "Xenova/all-MiniLM-L6-v2",
+  "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+  "corpusSize": 12,
+  "queryCount": 6,
+  "k": 3,
+  "runs": [
+    {
+      "config": {
+        "name": "FP32 / WASM / batch1 / refresh1",
+        "dtype": "fp32",
+        "forceWasm": true,
+        "batchSize": 1,
+        "refreshEach": true
+      },
+      "docRuns": [
+        {
+          "loadMs": 1315.300000011921,
+          "embedMs": 554.1999999880791,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 120.02700000000186,
+          "refreshMs": 7929.18590000004
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 498.80000001192093,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 93.58250000007683,
+          "refreshMs": 8349.978299999959
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 479.4000000357628,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 99.5875999997952,
+          "refreshMs": 8045.771200000192
+        }
+      ],
+      "queryRuns": [
+        {
+          "repeat": 0,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 15.199999988079071,
+          "searchMs": 7.536699999996927,
+          "endToEndMs": 32.40000003576279,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 16.80000001192093,
+          "searchMs": 3.433199999970384,
+          "endToEndMs": 28.5,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 9.699999988079071,
+          "searchMs": 2.51490000000922,
+          "endToEndMs": 17.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 11.200000047683716,
+          "searchMs": 2.5927999999839813,
+          "endToEndMs": 19.400000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "train",
+            "hybrid"
+          ],
+          "queryEmbedMs": 15.900000035762787,
+          "searchMs": 3.229499999957625,
+          "endToEndMs": 29.299999952316284,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 18.099999964237213,
+          "searchMs": 2.9980999999679625,
+          "endToEndMs": 28.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 13.900000035762787,
+          "searchMs": 12.118500000040513,
+          "endToEndMs": 35.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 16.599999964237213,
+          "searchMs": 2.5248000000137836,
+          "endToEndMs": 25.80000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 17,
+          "searchMs": 2.901899999997113,
+          "endToEndMs": 28.599999964237213,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 16.30000001192093,
+          "searchMs": 3.396900000050664,
+          "endToEndMs": 31.100000023841858,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "train",
+            "hybrid"
+          ],
+          "queryEmbedMs": 20,
+          "searchMs": 2.7617999999783933,
+          "endToEndMs": 29.19999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 9,
+          "searchMs": 3.20609999995213,
+          "endToEndMs": 19.400000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 7.800000011920929,
+          "searchMs": 11.758399999991525,
+          "endToEndMs": 26.5,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 8.200000047683716,
+          "searchMs": 2.910199999983888,
+          "endToEndMs": 18.80000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 17,
+          "searchMs": 2.5029000000213273,
+          "endToEndMs": 26.799999952316284,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 21.399999976158142,
+          "searchMs": 3.113100000016857,
+          "endToEndMs": 34.60000002384186,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "train",
+            "hybrid"
+          ],
+          "queryEmbedMs": 11.299999952316284,
+          "searchMs": 2.5789999999688007,
+          "endToEndMs": 20.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 15,
+          "searchMs": 2.4892000000108965,
+          "endToEndMs": 27.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        }
+      ],
+      "summary": {
+        "backend": "WASM",
+        "coldLoadMs": 1315.300000011921,
+        "warmDocMs": 489.10000002384186,
+        "docsPerSecond": 24.534859945645152,
+        "writeMs": 99.5875999997952,
+        "refreshMs": 8045.771200000192,
+        "searchMs": 2.9541499999759253,
+        "queryEmbedMs": 15.550000011920929,
+        "endToEndMs": 28,
+        "recall": 1,
+        "ndcg": 1
+      }
+    },
+    {
+      "config": {
+        "name": "INT8 / WASM / batch1 / refresh1",
+        "dtype": "q8",
+        "forceWasm": true,
+        "batchSize": 1,
+        "refreshEach": true
+      },
+      "docRuns": [
+        {
+          "loadMs": 207.80000001192093,
+          "embedMs": 330.80000001192093,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 119.70120000006864,
+          "refreshMs": 8260.644299999985
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 326.89999997615814,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 145.48969999980181,
+          "refreshMs": 6821.388400000171
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 310,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 102.9092000000528,
+          "refreshMs": 7472.2957999999635
+        }
+      ],
+      "queryRuns": [
+        {
+          "repeat": 0,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 15.5,
+          "searchMs": 6.048500000033528,
+          "endToEndMs": 28.899999976158142,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 9.5,
+          "searchMs": 2.765399999974761,
+          "endToEndMs": 23.399999976158142,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 10,
+          "searchMs": 2.442700000014156,
+          "endToEndMs": 28.80000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 13.700000047683716,
+          "searchMs": 3.5988999999826774,
+          "endToEndMs": 26.900000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 13.5,
+          "searchMs": 2.522400000016205,
+          "endToEndMs": 24.299999952316284,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 5.899999976158142,
+          "searchMs": 2.4760000000242144,
+          "endToEndMs": 13.900000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 10.5,
+          "searchMs": 3.462900000042282,
+          "endToEndMs": 23.399999976158142,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 5.800000011920929,
+          "searchMs": 2.924600000027567,
+          "endToEndMs": 13.699999988079071,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 6.300000011920929,
+          "searchMs": 2.9792000000015832,
+          "endToEndMs": 14.900000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 7.199999988079071,
+          "searchMs": 2.625599999970291,
+          "endToEndMs": 14.800000011920929,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 12.400000035762787,
+          "searchMs": 2.6955999999772757,
+          "endToEndMs": 20.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 5.900000035762787,
+          "searchMs": 3.016399999964051,
+          "endToEndMs": 14.5,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 5.299999952316284,
+          "searchMs": 10.333700000017416,
+          "endToEndMs": 21.899999976158142,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 10.5,
+          "searchMs": 3.1327000000164844,
+          "endToEndMs": 21.100000023841858,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 11.299999952316284,
+          "searchMs": 2.663200000009965,
+          "endToEndMs": 20.399999976158142,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 7.100000023841858,
+          "searchMs": 3.213899999973364,
+          "endToEndMs": 18,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 8.399999976158142,
+          "searchMs": 2.9646000000066124,
+          "endToEndMs": 18.80000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 6,
+          "searchMs": 2.9880999999586493,
+          "endToEndMs": 20.19999998807907,
+          "recall": 1,
+          "ndcg": 1
+        }
+      ],
+      "summary": {
+        "backend": "WASM",
+        "coldLoadMs": 207.80000001192093,
+        "warmDocMs": 318.44999998807907,
+        "docsPerSecond": 37.68252473056747,
+        "writeMs": 119.70120000006864,
+        "refreshMs": 7472.2957999999635,
+        "searchMs": 2.971900000004098,
+        "queryEmbedMs": 8.949999988079071,
+        "endToEndMs": 20.549999982118607,
+        "recall": 1,
+        "ndcg": 1
+      }
+    },
+    {
+      "config": {
+        "name": "INT8 / WASM / batch8 / refresh1",
+        "dtype": "q8",
+        "forceWasm": true,
+        "batchSize": 8,
+        "refreshEach": true
+      },
+      "docRuns": [
+        {
+          "loadMs": 0,
+          "embedMs": 330.80000001192093,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 195.95289999991655,
+          "refreshMs": 7472.20570000005
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 331.89999997615814,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 227.8222999999998,
+          "refreshMs": 8884.777299999958
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 327.39999997615814,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 232.34150000015507,
+          "refreshMs": 7079.452699999849
+        }
+      ],
+      "queryRuns": [
+        {
+          "repeat": 0,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 5.300000011920929,
+          "searchMs": 14.191500000015367,
+          "endToEndMs": 26.299999952316284,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 5.800000011920929,
+          "searchMs": 3.089299999992363,
+          "endToEndMs": 14.200000047683716,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 6,
+          "searchMs": 3.5561999999918044,
+          "endToEndMs": 16.19999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 14.199999988079071,
+          "searchMs": 2.6900000000023283,
+          "endToEndMs": 24.099999964237213,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 10.400000035762787,
+          "searchMs": 2.411199999973178,
+          "endToEndMs": 19.80000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 12.900000035762787,
+          "searchMs": 2.8399999999674037,
+          "endToEndMs": 22.900000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 10.599999964237213,
+          "searchMs": 7.2929000000003725,
+          "endToEndMs": 29.599999964237213,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 11.5,
+          "searchMs": 3.011400000017602,
+          "endToEndMs": 21.100000023841858,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 11.899999976158142,
+          "searchMs": 3.150099999969825,
+          "endToEndMs": 28.19999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 13.400000035762787,
+          "searchMs": 3.464700000011362,
+          "endToEndMs": 26.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 12.300000011920929,
+          "searchMs": 3.7194000000017695,
+          "endToEndMs": 23.900000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 10.700000047683716,
+          "searchMs": 3.000599999970291,
+          "endToEndMs": 21.80000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 10,
+          "searchMs": 3.635400000028312,
+          "endToEndMs": 29.5,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 10.200000047683716,
+          "searchMs": 3.4672999999602325,
+          "endToEndMs": 34.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 11.5,
+          "searchMs": 3.0499999999883585,
+          "endToEndMs": 22.899999976158142,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 7.199999988079071,
+          "searchMs": 3.3273000000044703,
+          "endToEndMs": 15.600000023841858,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 6.800000011920929,
+          "searchMs": 3.015300000028219,
+          "endToEndMs": 19.399999976158142,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 10.900000035762787,
+          "searchMs": 3.131200000003446,
+          "endToEndMs": 22.899999976158142,
+          "recall": 1,
+          "ndcg": 1
+        }
+      ],
+      "summary": {
+        "backend": "WASM",
+        "coldLoadMs": 0,
+        "warmDocMs": 329.64999997615814,
+        "docsPerSecond": 36.4022448077291,
+        "writeMs": 227.8222999999998,
+        "refreshMs": 7472.20570000005,
+        "searchMs": 3.1406499999866355,
+        "queryEmbedMs": 10.650000005960464,
+        "endToEndMs": 22.900000005960464,
+        "recall": 1,
+        "ndcg": 1
+      }
+    },
+    {
+      "config": {
+        "name": "INT8 / WASM / batch8 / refreshBatch",
+        "dtype": "q8",
+        "forceWasm": true,
+        "batchSize": 8,
+        "refreshEach": false
+      },
+      "docRuns": [
+        {
+          "loadMs": 0,
+          "embedMs": 332,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 75.102200000023,
+          "refreshMs": 501.0198000000091
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 337.19999998807907,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 83.2270000000135,
+          "refreshMs": 500.944599999988
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 325.60000002384186,
+          "backend": "WASM",
+          "fallback": "已选择强制 WASM 验证",
+          "count": 12,
+          "writeMs": 79.6140000000014,
+          "refreshMs": 599.851800000004
+        }
+      ],
+      "queryRuns": [
+        {
+          "repeat": 0,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 10,
+          "searchMs": 7.90669999999227,
+          "endToEndMs": 26.900000035762787,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 7.300000011920929,
+          "searchMs": 3.0631000000284985,
+          "endToEndMs": 19.200000047683716,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 14.399999976158142,
+          "searchMs": 11.20030000002589,
+          "endToEndMs": 33.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 6.800000011920929,
+          "searchMs": 3.238100000016857,
+          "endToEndMs": 16.099999964237213,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 6.5,
+          "searchMs": 3.580599999986589,
+          "endToEndMs": 15.800000011920929,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 5.699999988079071,
+          "searchMs": 3.34519999998156,
+          "endToEndMs": 16.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 11,
+          "searchMs": 2.9275000000488944,
+          "endToEndMs": 32.19999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 5.600000023841858,
+          "searchMs": 4.326999999990221,
+          "endToEndMs": 16.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 6.5,
+          "searchMs": 3.217899999988731,
+          "endToEndMs": 15.599999964237213,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 7.399999976158142,
+          "searchMs": 2.7246000000159256,
+          "endToEndMs": 28.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 6.400000035762787,
+          "searchMs": 3.354300000006333,
+          "endToEndMs": 18.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 8.399999976158142,
+          "searchMs": 3.519700000004377,
+          "endToEndMs": 23.80000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 10.400000035762787,
+          "searchMs": 2.73599999997532,
+          "endToEndMs": 22.600000023841858,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 6.199999988079071,
+          "searchMs": 3.216199999966193,
+          "endToEndMs": 16,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 6.200000047683716,
+          "searchMs": 3.182199999981094,
+          "endToEndMs": 15.300000011920929,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 7.100000023841858,
+          "searchMs": 3.6974000000045635,
+          "endToEndMs": 21.599999964237213,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "hybrid",
+            "batch"
+          ],
+          "queryEmbedMs": 13.399999976158142,
+          "searchMs": 3.2202999999863096,
+          "endToEndMs": 24.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 5.600000023841858,
+          "searchMs": 3.255200000014156,
+          "endToEndMs": 16.5,
+          "recall": 1,
+          "ndcg": 1
+        }
+      ],
+      "summary": {
+        "backend": "WASM",
+        "coldLoadMs": 0,
+        "warmDocMs": 331.40000000596046,
+        "docsPerSecond": 36.21001810435779,
+        "writeMs": 79.6140000000014,
+        "refreshMs": 501.0198000000091,
+        "searchMs": 3.2466500000155065,
+        "queryEmbedMs": 6.950000017881393,
+        "endToEndMs": 18.950000017881393,
+        "recall": 1,
+        "ndcg": 1
+      }
+    },
+    {
+      "config": {
+        "name": "INT8 / GPU优先 / batch8 / refreshBatch",
+        "dtype": "q8",
+        "forceWasm": false,
+        "batchSize": 8,
+        "refreshEach": false
+      },
+      "docRuns": [
+        {
+          "loadMs": 847,
+          "embedMs": 1456,
+          "backend": "WebGPU",
+          "fallback": "",
+          "count": 12,
+          "writeMs": 79.37489999999525,
+          "refreshMs": 497.2085000000079
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 483,
+          "backend": "WebGPU",
+          "fallback": "",
+          "count": 12,
+          "writeMs": 99.20519999996759,
+          "refreshMs": 701.0076000000117
+        },
+        {
+          "loadMs": 0,
+          "embedMs": 463.60000002384186,
+          "backend": "WebGPU",
+          "fallback": "",
+          "count": 12,
+          "writeMs": 62.01439999998547,
+          "refreshMs": 700.671100000036
+        }
+      ],
+      "queryRuns": [
+        {
+          "repeat": 0,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 149.39999997615814,
+          "searchMs": 6.754199999966659,
+          "endToEndMs": 163.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 118.30000001192093,
+          "searchMs": 3.6159000000334345,
+          "endToEndMs": 130.19999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 154.30000001192093,
+          "searchMs": 2.5939000000362284,
+          "endToEndMs": 163.5,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 124.80000001192093,
+          "searchMs": 3.1490999999805354,
+          "endToEndMs": 134.39999997615814,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "batch",
+            "hybrid"
+          ],
+          "queryEmbedMs": 87.40000003576279,
+          "searchMs": 2.8800000000046566,
+          "endToEndMs": 95.5,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 0,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 108.80000001192093,
+          "searchMs": 3.0200999999651685,
+          "endToEndMs": 118.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 126.39999997615814,
+          "searchMs": 2.6995999999926426,
+          "endToEndMs": 148.20000004768372,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 104.5,
+          "searchMs": 2.9552999999723397,
+          "endToEndMs": 115.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 120.10000002384186,
+          "searchMs": 2.8414999999804422,
+          "endToEndMs": 128.30000001192093,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 117.60000002384186,
+          "searchMs": 3.7991000000038184,
+          "endToEndMs": 131.19999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "batch",
+            "hybrid"
+          ],
+          "queryEmbedMs": 104.80000001192093,
+          "searchMs": 3.144399999990128,
+          "endToEndMs": 116.5,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 1,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 101.5,
+          "searchMs": 3.0275999999721535,
+          "endToEndMs": 109.89999997615814,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does WebGPU accelerate inference?",
+          "ids": [
+            "gpu",
+            "wasm",
+            "batch"
+          ],
+          "queryEmbedMs": 95.39999997615814,
+          "searchMs": 3.2581000000354834,
+          "endToEndMs": 104.40000003576279,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "What CPU fallback works without WebGPU?",
+          "ids": [
+            "wasm",
+            "gpu",
+            "batch"
+          ],
+          "queryEmbedMs": 109,
+          "searchMs": 3.047900000005029,
+          "endToEndMs": 117.29999995231628,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does INT8 quantization reduce model size?",
+          "ids": [
+            "quant",
+            "batch",
+            "wasm"
+          ],
+          "queryEmbedMs": 94.79999995231628,
+          "searchMs": 2.714700000011362,
+          "endToEndMs": 103.60000002384186,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "How does seekdb combine keyword and semantic search with RRF?",
+          "ids": [
+            "hybrid",
+            "refresh",
+            "batch"
+          ],
+          "queryEmbedMs": 96.90000003576279,
+          "searchMs": 3.1718999999575317,
+          "endToEndMs": 107.69999998807907,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "When should the vector index refresh after importing documents?",
+          "ids": [
+            "refresh",
+            "batch",
+            "hybrid"
+          ],
+          "queryEmbedMs": 131.80000001192093,
+          "searchMs": 3.656399999978021,
+          "endToEndMs": 144.10000002384186,
+          "recall": 1,
+          "ndcg": 1
+        },
+        {
+          "repeat": 2,
+          "query": "Why reuse the model and batch multiple documents?",
+          "ids": [
+            "batch",
+            "refresh",
+            "identity"
+          ],
+          "queryEmbedMs": 112.5,
+          "searchMs": 2.527299999957904,
+          "endToEndMs": 120.09999996423721,
+          "recall": 1,
+          "ndcg": 1
+        }
+      ],
+      "summary": {
+        "backend": "WebGPU",
+        "coldLoadMs": 847,
+        "warmDocMs": 473.30000001192093,
+        "docsPerSecond": 25.3538981612038,
+        "writeMs": 79.37489999999525,
+        "refreshMs": 700.671100000036,
+        "searchMs": 3.0377499999885913,
+        "queryEmbedMs": 110.75,
+        "endToEndMs": 119.39999997615814,
+        "recall": 1,
+        "ndcg": 1
+      }
+    }
+  ],
+  "modelFiles": {
+    "model": "Xenova/all-MiniLM-L6-v2",
+    "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "files": [
+      {
+        "file": "config.json",
+        "bytes": 650,
+        "sha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7"
+      },
+      {
+        "file": "tokenizer.json",
+        "bytes": 711661,
+        "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0"
+      },
+      {
+        "file": "tokenizer_config.json",
+        "bytes": 366,
+        "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3"
+      },
+      {
+        "file": "special_tokens_map.json",
+        "bytes": 125,
+        "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3"
+      },
+      {
+        "file": "onnx/model.onnx",
+        "bytes": 90387606,
+        "sha256": "759c3cd2b7fe7e93933ad23c4c9181b7396442a2ed746ec7c1d46192c469c46e"
+      },
+      {
+        "file": "onnx/model_quantized.onnx",
+        "bytes": 22972370,
+        "sha256": "afdb6f1a0e45b715d0bb9b11772f032c399babd23bfc31fed1c170afc848bdb1"
+      }
+    ],
+    "fp32Bytes": 91100408,
+    "q8Bytes": 23685172,
+    "compressionRatio": 3.8463055282013574
+  }
+}

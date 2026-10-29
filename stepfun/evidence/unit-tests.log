@@ -1,0 +1,15 @@
+
+> stepfun-local-knowledge@1.0.0 test
+> node --test test/*.test.mjs
+
+✔ chunking preserves the final text and the overlap (0.8669ms)
+✔ quality metrics penalize missing relevant documents and rank order (0.2264ms)
+✔ reject incompatible, invalid and unsafe input before touching the database (0.3679ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 138.2505
