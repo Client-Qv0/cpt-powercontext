@@ -363,6 +363,21 @@ python -m pytest -q
 
 **初始数据**：`sample_project/src/booknest/store.py` 中 12 本馆藏，5 个主题，9 本在架。
 
+**上下文必须包含的来源**（可直接对照 `evidence/context-before.json` / `context-after.json`）：
+
+| 类别 | 必须包含 | 位置 |
+| --- | --- | --- |
+| 规格 | `BOOK-004` 主题与在架筛选 | `specs/catalog.md:35-47` |
+| 规格 | `BOOK-005` 边界与错误 | `specs/catalog.md:48-52` |
+| 规格 | `API-001` 查询参数 | `specs/api.md:13-24` |
+| 规格 | `ADR-0008` 筛选先于分页 | `specs/decisions/ADR-0008.md:10-19` |
+| 规格（兼容约束） | `BOOK-001`、`BOOK-002`、`BOOK-003`、`API-002`、`API-004` | `specs/catalog.md`、`specs/api.md` |
+| 代码 | `CatalogService.list_books` | `src/booknest/catalog.py:23-47` |
+| 代码（兼容适配） | `list_books_response` | `src/booknest/api.py:20-37` |
+| 目标测试 | 8 个用例：topic 精确/大小写、available_only、AND、先筛选后分页、未知主题、API 透传 | `tests/test_catalog_filters.py` |
+| 回归测试 | 14 个节点 / 23 个用例 | `tests/test_api_contract.py`、`tests/test_catalog_contract.py`、`tests/test_pagination.py` |
+| 应排除 | `REPORT-*`、`reports.py`、`test_reports.py`（无关报表） | 上下文不应包含 |
+
 **操作步骤**：见第 8 节。
 
 **预期结果**：修改前目标 8 failed、回归 23 passed；修改后目标 8 passed、回归 23 passed、全量 32 passed。
@@ -396,21 +411,19 @@ SQL 检索实际参与、规格更新后使用新内容、PowerContext 跨 runti
 补丁安全测试覆盖路径白名单、二进制拒绝、Markdown 围栏提取与 git apply/reverse；
 MiniMax 客户端测试用本地 mock HTTP 端点校验请求路径、鉴权头、请求体、响应解析与错误处理。
 
-本机还使用同一 mock 端点跑通过一次完整 `specanchor apply` 链路（db init → ingest →
-apply → 目标/回归/全量测试 → PowerContext → evidence），因此除“真实远端模型”外的
-CLI、补丁、测试和状态链路均已验证。
+本机还使用同一 mock 端点跑通过完整 `specanchor apply` 链路（db init → ingest →
+apply → 目标/回归/全量测试 → PowerContext → evidence），用于离线回归。
+
+真实 MiniMax 调用已于 2026-10-29 成功完成：`MiniMax-M3.1-Flash`，1 次尝试，3547 ms，
+prompt 4098 / completion 453 / total 4551 tokens；因此“真实远端模型 → 补丁 → 测试 →
+状态 → 证据”的完整链路已实测。
 
 ---
 
 ## 11. 技术使用记录
 
-运行 `apply` 与 `verify_change.py` 后：
-
-```bash
-python scripts/render_evidence.py
-```
-
-生成（内容全部从真实运行文件读取，不手写）：
+以下记录已由本次真实运行（`evidence/runs/20261029-080429-TASK-BOOK-0042-run-ca941f5461`）生成，
+内容全部从真实运行文件读取，不手写：
 
 | 文件 | 内容 |
 | --- | --- |
@@ -422,10 +435,12 @@ python scripts/render_evidence.py
 另有：
 
 - `evidence/baseline/sample_project.zip` + `manifest.json`：修改前完整快照与逐文件 SHA-256；
+- `evidence/context-before.json` / `context-after.json`：修改前后上下文（含规格/代码/测试来源与状态）；
 - `evidence/patches/TASK-BOOK-0042.patch`：MiniMax 实际补丁；
 - `evidence/test-logs/`：`before-*` / `after-*` 日志，日志头包含命令、工作目录、退出码、代码版本；
 - `evidence/spec-update.json`：规格更新前后对比；
-- `evidence/verify-change.json`：修改前后验收的机器可读汇总。
+- `evidence/verify-change.json`：修改前后验收的机器可读汇总；
+- `evidence/acceptance-audit.json`：六项验收自检结果（6 pass）。
 
 ---
 
