@@ -1,6 +1,6 @@
 # seekdb / OceanBase 使用记录
 
-- 生成时间：2026-10-29T08:06:30+08:00
+- 生成时间：2026-10-29T08:07:51+08:00
 - 引擎：seekdb/OceanBase (MySQL protocol)
 - 数据库：`specanchor`
 - 索引内容：9 条规格、8 个代码符号、22 个测试（选入本次上下文）

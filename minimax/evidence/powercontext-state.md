@@ -1,6 +1,6 @@
 # PowerContext 状态写入与复用记录
 
-- 生成时间：2026-10-29T08:06:30+08:00
+- 生成时间：2026-10-29T08:07:51+08:00
 - SDK：`powercontext[builtin]==1.4.1`
 - 存储：`F:\OceanBase\powercontext\cpt-powercontext\minimax\.state\powercontext.db`（PowerContext builtin SQLite backend）
 - Scope：`scp_6vntj7v6jxecz4dssb28ees9pc`
