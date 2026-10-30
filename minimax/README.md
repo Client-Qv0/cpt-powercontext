@@ -14,7 +14,8 @@
 
 仓库中的 `sample_project/` 已包含真实 MiniMax 运行生成的修复。请先查看
 `evidence/runs/20261029-080429-TASK-BOOK-0042-run-ca941f5461/` 和修改前后日志。
-当前样例目标测试 8 passed、回归 23 passed、全量 32 passed。
+当前样例目标测试 8 passed、回归 23 passed、全量 32 passed。`evidence/` 中的全部记录来自一次
+**真实的 MiniMax 调用**（2026-10-29，`MiniMax-M3.1-Flash`）。
 
 **不调用模型的复核**（无需 API Key、无需数据库，也不覆盖当前工程）：
 
@@ -25,6 +26,29 @@ python scripts/replay_evidence.py --run-dir evidence/runs/20261029-080429-TASK-B
 它在临时独立 Git 仓库中解压修改前快照，验证目标失败与回归通过，应用保存的
 MiniMax 补丁，再验证目标、回归及全量测试。该过程是历史补丁复现，不能冒充新的模型调用，
 也不会恢复或伪造 PowerContext 状态。
+
+**其余环节复核**（需要 seekdb；不需要 MiniMax 密钥）：
+
+| 验证项 | 命令 |
+| --- | --- |
+| 模块可运行、数据库接入 | `python -m specanchor doctor` |
+| 上下文正确性 | `python -m specanchor context --task examples/task-book-filters.json` |
+| 修改前失败 / 修改后通过 | `python scripts/verify_change.py` |
+| 规格更新后使用新内容 | `python -m specanchor spec-update --task examples/task-book-filters.json` |
+| 状态保存与重启复用 | `python -m specanchor verify --task examples/task-book-filters.json --record`，再 `python -m specanchor state show --task examples/task-book-filters.json` |
+| 由 MiniMax 重新生成补丁 | `python -m specanchor apply --task examples/task-book-filters.json`（需要 key） |
+
+`apply` 的复现顺序是“修改前基线 → MiniMax 生成补丁 → 应用 → 跑测试”：
+
+```bash
+python scripts/reset_demo.py --baseline --yes   # 回到修改前基线（目标测试 8 failed）
+python -m specanchor apply --task examples/task-book-filters.json
+python scripts/verify_change.py
+python scripts/render_evidence.py
+```
+
+`apply` 成功后会在 `evidence/runs/<时间>-TASK-BOOK-0042-<id>/` 留下上下文、提示词、
+模型响应、补丁、日志和 PowerContext 状态，并把 `sample_project` 更新为通过状态。
 
 **重新调用模型演示**（需要自己配置 API Key 和 seekdb）：请复制整个 `minimax/` 目录到
 新的演示目录，在副本中按第 8 节初始化并执行 `python scripts/reset_demo.py --baseline`、
@@ -65,7 +89,7 @@ minimax/
 │   ├── render_evidence.py      # 从真实运行产物生成技术记录
 │   └── reset_demo.py           # 恢复基线并清空本地状态
 ├── evidence/                   # 运行后生成的证据（基线快照已提交）
-├── tests/                      # 上下文模块自身的 28 项测试（原有验收与客户端测试、来源过期和证据一致性测试）
+├── tests/                      # 上下文模块自身的 31 项测试（验收/来源指纹/证据一致性/补丁安全/客户端）
 ├── requirements.txt
 └── README.md / DESIGN.md
 ```
@@ -218,8 +242,11 @@ python -m specanchor apply --task examples/task-book-filters.json --dry-run
 1. 构建上下文，从 PowerContext 读取（或创建）Work contract；
 2. 跑目标测试，**要求修改前失败**（退出码 1 且有真实断言失败；环境错误会中止）；
 3. 跑回归测试，要求修改前通过；
-4. 调用 MiniMax；提取 unified diff；拒绝 `src/` 之外的路径、测试/规格修改与二进制补丁；
+4. 调用 MiniMax；提取 unified diff；**按 hunk 正文修正 `@@ -a,b +c,d @@` 的行数**
+   （模型常给出看似合理但与正文不符的计数，`git apply` 会直接拒绝整份补丁）；
+   拒绝 `src/` 之外的路径、测试/规格修改与二进制补丁；
 5. `git apply` 后跑目标 + 回归；失败则回滚补丁，把失败日志发回模型重试（默认最多 3 次）；
+   补丁本身无法应用时同样回到重试流程，而不是直接终止整次运行；
 6. 成功后跑全量测试，写 `TaskOutcome` 到 PowerContext，保存 `evidence/runs/<...>/`；
 7. 打印运行摘要（JSON）。
 
@@ -232,6 +259,7 @@ evidence/runs/<timestamp>-TASK-BOOK-0042-<run_id>/
 ├── minimax-calls.jsonl        # 请求摘要、模型、用量、时延
 ├── minimax-response-1.txt    # 原始响应
 ├── attempt-1.diff             # 提取并校验后的补丁
+├── attempt-1.hunk-normalization.json  # @@ 行数被修正时的记录（若有）
 ├── baseline-target.log        # 修改前目标测试（预期失败）
 ├── baseline-regression.log
 ├── attempt-1-target.log
@@ -398,7 +426,7 @@ python -m specanchor ingest --project booknest
 ```bash
 # 上下文模块自身（需要 seekdb 已启动）
 python -m pytest -q
-# 期望：28 passed
+# 期望：31 passed
 
 # 业务工程（apply 成功后）
 cd sample_project && python -m pytest -q
@@ -407,7 +435,7 @@ cd sample_project && python -m pytest -q
 
 模块测试覆盖：上下文必要来源、目标/回归互斥与覆盖范围、来源真实性与 SHA-256、
 SQL 检索实际参与、规格更新后使用新内容、PowerContext 跨 runtime 重启复用；
-补丁安全测试覆盖路径白名单、二进制拒绝、Markdown 围栏提取与 git apply/reverse；
+补丁安全测试覆盖路径白名单、二进制拒绝、Markdown 围栏提取、`@@` 行数自愈与 git apply/reverse；
 MiniMax 客户端测试用本地 mock HTTP 端点校验请求路径、鉴权头、请求体、响应解析与错误处理。
 
 本机还使用同一 mock 端点跑通过完整 `specanchor apply` 链路（db init → ingest →

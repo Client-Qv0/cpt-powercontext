@@ -80,6 +80,10 @@
   PowerContext 状态；要求只输出 unified diff。
 - 程序侧硬约束：路径必须 `src/` 前缀；拒绝 `tests/`、`specs/`、绝对路径、`..`、二进制补丁；
   应用前 `git apply --check`；测试失败先回滚再带日志重试；最多 3 次。
+- **补丁自愈**：模型常给出与正文不符的 `@@ -a,b +c,d @@` 行数（2026-10-30 实测连续 4/4 次），
+  `git apply` 会以 `corrupt patch` 拒绝整份补丁。模块在应用前按 hunk 正文重新计算行数并改写
+  头部（`normalize_hunk_headers`），修正记录写入 `attempt-N.hunk-normalization.json`；
+  仍无法应用则回到重试流程，把 `git apply` 的报错回传给模型，而不是终止整次运行。
 - 目标测试与回归测试的 nodeid 来自上下文，不由模型决定；测试文件在修改前后保持一致。
 
 ## 6. 成本与时延

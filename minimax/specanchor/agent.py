@@ -20,7 +20,7 @@ from .db import Database
 from .errors import MiniMaxError, PatchError, SpecAnchorError, VerificationError
 from .ingest import import_project
 from .minimax import MiniMaxClient
-from .patch import apply_diff, extract_unified_diff, validate_diff
+from .patch import apply_diff, extract_unified_diff, normalize_hunk_headers, validate_diff
 from .prompts import SYSTEM_PROMPT, build_user_prompt
 from .retrieve import ContextBuilder, Task
 from .state import StateStore
@@ -113,9 +113,10 @@ def run_pytest(project_root: Path, nodeids: list[str], *, name: str, timeout: in
     return run
 
 
-def _write(path: Path, content: str) -> None:
+def _write(path: Path, content: str, mode: str = "w") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8", newline="\n")
+    with path.open(mode, encoding="utf-8", newline="\n") as handle:
+        handle.write(content)
 
 
 def _now_slug() -> str:
@@ -196,6 +197,7 @@ async def run_apply(
             _write(run_dir / "minimax-response.txt", result.content)
             _write(run_dir / "minimax-meta.json", json.dumps(result.as_dict(), ensure_ascii=False, indent=2))
             diff = extract_unified_diff(result.content)
+            diff, header_notes = normalize_hunk_headers(diff)
             info = validate_diff(diff)
             _write(run_dir / "dry-run.diff", diff)
             outcome = ApplyOutcome(
@@ -272,9 +274,17 @@ async def run_apply(
                     "response": result.as_dict(),
                 }
             )
+            _write(run_dir / "minimax-calls.jsonl", json.dumps(calls[-1], ensure_ascii=False) + "\n", mode="a")
             _write(run_dir / f"minimax-response-{attempt}.txt", result.content)
             try:
                 diff_text = extract_unified_diff(result.content)
+                diff_text, header_notes = normalize_hunk_headers(diff_text)
+                if header_notes:
+                    calls[-1]["response"]["hunk_normalization"] = header_notes
+                    _write(
+                        run_dir / f"attempt-{attempt}.hunk-normalization.json",
+                        json.dumps(header_notes, ensure_ascii=False, indent=2),
+                    )
                 info = validate_diff(diff_text)
             except PatchError as exc:
                 _write(run_dir / f"invalid-{attempt}.txt", result.content)
@@ -285,15 +295,29 @@ async def run_apply(
                     {
                         "role": "user",
                         "content": f"你的响应不是可应用的 unified diff（{exc}）。请重新输出完整 diff，"
-                        "只修改 src/ 下的实现文件。",
+                        "只修改 src/ 下的实现文件，并确保 @@ -a,b +c,d @@ 中的行数与正文一致。",
                     },
                 ]
                 continue
 
             _write(run_dir / f"attempt-{attempt}.diff", diff_text)
             attempt_diffs.append({"attempt": attempt, "diff": info.as_dict()})
-            apply_diff(diff_text, root, check_only=True)
-            apply_diff(diff_text, root)
+            try:
+                apply_diff(diff_text, root, check_only=True)
+                apply_diff(diff_text, root)
+            except PatchError as exc:
+                _write(run_dir / f"invalid-{attempt}.txt", result.content)
+                if attempt == max_attempts:
+                    raise PatchError(f"第 {attempt} 次响应的补丁无法应用: {exc}") from exc
+                messages = base_messages + [
+                    {"role": "assistant", "content": result.content},
+                    {
+                        "role": "user",
+                        "content": f"应用补丁失败（{exc}）。请重新输出完整的 unified diff，"
+                        "只修改 src/ 下的实现文件，并确保 @@ -a,b +c,d @@ 中的行数与正文一致。",
+                    },
+                ]
+                continue
 
             target_run = run_pytest(root, target_ids, name=f"attempt-{attempt}.target")
             _write(run_dir / f"attempt-{attempt}-target.log", target_run.output)
@@ -323,7 +347,10 @@ async def run_apply(
                 {"role": "user", "content": "\n".join(feedback)},
             ]
 
-        _write(run_dir / "minimax-calls.jsonl", "\n".join(json.dumps(call, ensure_ascii=False) for call in calls) + "\n")
+        _write(
+            run_dir / "minimax-calls.jsonl",
+            "\n".join(json.dumps(call, ensure_ascii=False) for call in calls) + "\n",
+        )
 
         if not success:
             outcome = ApplyOutcome(

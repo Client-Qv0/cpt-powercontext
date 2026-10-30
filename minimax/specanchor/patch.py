@@ -116,6 +116,69 @@ def validate_diff(diff: str, *, allowed_prefix: str = "src/") -> DiffInfo:
     return DiffInfo(text=diff, paths=paths, hunks=hunks, added=added, removed=removed)
 
 
+_HUNK_HEADER = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)$")
+
+
+def normalize_hunk_headers(diff: str) -> tuple[str, list[str]]:
+    """Recompute unified-diff hunk line counts from the hunk bodies.
+
+    ``git apply`` refuses a patch whose ``@@ -a,b +c,d @@`` counts disagree with
+    the hunk body ("corrupt patch").  Models routinely emit plausible but wrong
+    counts even when the context and the ``+/-`` lines are exactly right, so the
+    counts are derived from the body instead of being trusted.
+
+    Returns the normalized diff plus one human-readable note per correction.
+    """
+
+    lines = diff.splitlines()
+    output: list[str] = []
+    notes: list[str] = []
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        match = _HUNK_HEADER.match(line)
+        if not match:
+            output.append(line)
+            index += 1
+            continue
+        body: list[str] = []
+        cursor = index + 1
+        while cursor < len(lines):
+            candidate = lines[cursor]
+            if _HUNK_HEADER.match(candidate) or candidate.startswith("diff --git "):
+                break
+            if (
+                candidate.startswith("--- ")
+                and cursor + 1 < len(lines)
+                and lines[cursor + 1].startswith("+++ ")
+            ):
+                break
+            if candidate[:1] in (" ", "-", "+", "\\"):
+                body.append(candidate)
+                cursor += 1
+                continue
+            break
+        old_count = sum(1 for item in body if item[:1] in (" ", "-"))
+        new_count = sum(1 for item in body if item[:1] in (" ", "+"))
+        declared_old = int(match.group(2)) if match.group(2) is not None else 1
+        declared_new = int(match.group(4)) if match.group(4) is not None else 1
+        old_start = match.group(1)
+        new_start = match.group(3)
+        trailing = match.group(5)
+        if body and (declared_old, declared_new) != (old_count, new_count):
+            notes.append(
+                f"@@ -{old_start},{declared_old} +{new_start},{declared_new} @@ 的行数与正文不符，"
+                f"已按正文修正为 -{old_start},{old_count} +{new_start},{new_count}"
+            )
+        if body:
+            output.append(f"@@ -{old_start},{old_count} +{new_start},{new_count} @@{trailing}")
+        else:
+            output.append(line)
+        output.extend(body)
+        index = cursor
+    return "\n".join(output) + "\n", notes
+
+
 def apply_diff(diff: str, project_root: Path, *, check_only: bool = False, reverse: bool = False) -> str:
     if not diff.strip():
         raise PatchError("空补丁")
