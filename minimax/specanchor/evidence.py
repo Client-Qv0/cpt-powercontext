@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from .errors import SpecAnchorError
-from .patch import extract_unified_diff, validate_diff
+from .patch import extract_unified_diff, normalize_hunk_headers, validate_diff
 
 
 def verify_model_evidence(run: Path, task_id: str) -> dict:
@@ -28,7 +28,9 @@ def verify_model_evidence(run: Path, task_id: str) -> dict:
                 raise ValueError("incomplete call metadata")
         response = (run / f"minimax-response-{attempts}.txt").read_text(encoding="utf-8")
         patch = (run / f"attempt-{attempts}.diff").read_text(encoding="utf-8")
-        if extract_unified_diff(response) != patch:
+        recorded = extract_unified_diff(response)
+        normalized, _notes = normalize_hunk_headers(recorded)
+        if normalized != patch:
             raise ValueError("response/patch mismatch")
         info = validate_diff(patch)
         for key, log in (("baseline_target", "baseline-target.log"),

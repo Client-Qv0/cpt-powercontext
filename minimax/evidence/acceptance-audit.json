@@ -10,7 +10,7 @@
     {
       "item": "数据库实际参与",
       "status": "pass",
-      "detail": "本次上下文执行 10 条 seekdb 查询"
+      "detail": "本次上下文执行 11 条 seekdb 查询"
     },
     {
       "item": "上下文正确",
@@ -20,7 +20,7 @@
     {
       "item": "MiniMax 实际参与",
       "status": "pass",
-      "detail": "最近成功运行 20261029-080429-TASK-BOOK-0042-run-ca941f5461"
+      "detail": "本地调用/响应/补丁/测试记录一致：MiniMax-M3.1-Flash；不代表远端认证"
     },
     {
       "item": "状态能够复用",
